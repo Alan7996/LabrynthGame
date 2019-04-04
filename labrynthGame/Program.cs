@@ -38,10 +38,10 @@ namespace labrynthGame
             this.height = r.Next(3, 10);
 
             // Randomly determine if the room has rooms in each direction
-            if (x <= X_ORIGIN + (X_SIZE - X_ORIGIN) / 2 && y <= Y_ORIGIN + (Y_SIZE - Y_ORIGIN) / 2)
+            /*if (x <= X_ORIGIN + (X_SIZE - X_ORIGIN) / 2 && y <= Y_ORIGIN + (Y_SIZE - Y_ORIGIN) / 2)
             {
                 
-            }
+            }*/
             if (y == 0) this.hasUp = false;
             else this.hasUp = (r.Next(2) > 0 ? true : false);
             if (y == Y_SIZE - 1) this.hasDown = false;
@@ -49,7 +49,30 @@ namespace labrynthGame
             if (x == 0) this.hasLeft = false;
             else this.hasLeft = (r.Next(2) > 0 ? true : false);
             if (x == X_SIZE - 1) this.hasRight = false;
-            else this.hasRight = (r.Next(2) > 0 ? true : false); 
+            else this.hasRight = (r.Next(2) > 0 ? true : false);
+
+            /*if (Math.Abs(x - X_ORIGIN) == 1 && Math.Abs(y - Y_ORIGIN) == 1)
+            {
+                string[] uplr = new string[4] { "u", "d", "l", "r" };
+                int i = r.Next(4);
+                switch (uplr[i])
+                {
+                    case "u":
+                        this.hasUp = true;
+                        break;
+                    case "d":
+                        this.hasDown = true;
+                        break;
+                    case "l":
+                        this.hasLeft = true;
+                        break;
+                    case "r":
+                        this.hasRight = true;
+                        break;
+                    default:
+                        break;
+                }
+            }*/
 
             lab[x, y] = this;
         }
@@ -129,7 +152,7 @@ namespace labrynthGame
                 this.up = room;
                 if (room.GetDown() == null)
                 {
-                    room.hasDown = true;
+                    room.SetHasDown(true);
                     room.SetDirRoom("d", this);
                 }
             }
@@ -139,7 +162,7 @@ namespace labrynthGame
                 this.down = room;
                 if (room.GetUp() == null)
                 {
-                    room.hasUp = true;
+                    room.SetHasUp(true);
                     room.SetDirRoom("u", this);
                 }
             }
@@ -149,7 +172,7 @@ namespace labrynthGame
                 this.left = room;
                 if (room.GetRight() == null)
                 {
-                    room.hasRight = true;
+                    room.SetHasRight(true);
                     room.SetDirRoom("r", this);
                 }
             }
@@ -159,7 +182,7 @@ namespace labrynthGame
                 this.right = room;
                 if (room.GetLeft() == null)
                 {
-                    room.hasLeft = true;
+                    room.SetHasLeft(true);
                     room.SetDirRoom("l", this);
                 }
             }
@@ -199,7 +222,14 @@ namespace labrynthGame
                         room.SetDirRoom("u", newRoom);
                         ArrayAppend(allArray, newRoom);
                     }
-                    else room.SetHasUp(false);
+                    else
+                    {
+                        if (lab[room.GetX(), room.GetY() - 1].GetHasDown())
+                        {
+                            room.SetDirRoom("u", lab[room.GetX(), room.GetY() - 1]);
+                        }
+                        else room.SetHasUp(false);
+                    }
                 }
                 if (room.GetHasDown() && room.GetDown() == null)
                 {
@@ -209,7 +239,14 @@ namespace labrynthGame
                         room.SetDirRoom("d", newRoom);
                         ArrayAppend(allArray, newRoom);
                     }
-                    else room.SetHasDown(false);
+                    else
+                    {
+                        if (lab[room.GetX(), room.GetY() + 1].GetHasUp())
+                        {
+                            room.SetDirRoom("d", lab[room.GetX(), room.GetY() + 1]);
+                        }
+                        else room.SetHasDown(false);
+                    }
                 }
                 if (room.GetHasLeft() && room.GetLeft() == null)
                 {
@@ -219,7 +256,14 @@ namespace labrynthGame
                         room.SetDirRoom("l", newRoom);
                         ArrayAppend(allArray, newRoom);
                     }
-                    else room.SetHasLeft(false);
+                    else
+                    {
+                        if (lab[room.GetX() - 1, room.GetY()].GetHasRight())
+                        {
+                            room.SetDirRoom("l", lab[room.GetX() - 1, room.GetY()]);
+                        }
+                        else room.SetHasLeft(false);
+                    }
                 }
                 if (room.GetHasRight() && room.GetRight() == null)
                 {
@@ -229,7 +273,14 @@ namespace labrynthGame
                         room.SetDirRoom("r", newRoom);
                         ArrayAppend(allArray, newRoom);
                     }
-                    else room.SetHasRight(false);
+                    else
+                    {
+                        if (lab[room.GetX() + 1, room.GetY()].GetHasLeft())
+                        {
+                            room.SetDirRoom("r", lab[room.GetX() + 1, room.GetY()]);
+                        }
+                        else room.SetHasRight(false);
+                    }
                 }
                 room.SetSet(true);
             }
@@ -262,30 +313,74 @@ namespace labrynthGame
                 {
                     if (map[i, j] == null)
                     {
-                        SetCursorPosition(7 * i, 5 * j + 1);
+                        SetCursorPosition(7 * i, 5 * j);
                         Write(EMPTY_ROOM[0]);
-                        SetCursorPosition(7 * i, 5 * j + 2);
+                        SetCursorPosition(7 * i, 5 * j + 1);
                         Write(EMPTY_ROOM[1]);
-                        SetCursorPosition(7 * i, 5 * j + 3);
+                        SetCursorPosition(7 * i, 5 * j + 2);
                         Write(EMPTY_ROOM[2]);
                         //Write("NULL ");
 
                     } else
                     {
-                        SetCursorPosition(7 * i, 5 * j + 1);
+                        SetCursorPosition(7 * i, 5 * j);
+                        if (map[i, j].GetHasUp()) EXIST_ROOM[0] = "     ";
                         Write(EXIST_ROOM[0]);
-                        SetCursorPosition(7 * i, 5 * j + 2);
+                        SetCursorPosition(7 * i, 5 * j + 1);
+                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? " " : "|") + " @ " + (map[i, j].GetHasRight() ? " " : "|");
                         Write(EXIST_ROOM[1]);
-                        SetCursorPosition(7 * i, 5 * j + 3);
+                        SetCursorPosition(7 * i, 5 * j + 2);
+                        if (map[i, j].GetHasDown()) EXIST_ROOM[2] = "     ";
                         Write(EXIST_ROOM[2]);
                         /*string u = map[i, j].GetHasUp().ToString();
                         string d = map[i, j].GetHasDown().ToString();
                         string l = map[i, j].GetHasLeft().ToString();
                         string f = map[i, j].GetHasRight().ToString();
                         Write(u+d+l+f+" ");*/
+
+                        if (map[i, j].GetHasUp())
+                        {
+                            SetCursorPosition(7 * i, 5 * j - 2);
+                            Write("| | |");
+                            SetCursorPosition(7 * i, 5 * j - 1);
+                            Write("| | |");
+                        }
+                        if (map[i, j].GetHasDown())
+                        {
+                            SetCursorPosition(7 * i, 5 * (j + 1) - 2);
+                            Write("| | |");
+                            SetCursorPosition(7 * i, 5 * (j + 1) - 1);
+                            Write("| | |");
+                        }
+                        if (map[i, j].GetHasLeft())
+                        {
+                            SetCursorPosition(7 * i - 2, 5 * j);
+                            Write("--");
+                            SetCursorPosition(7 * i - 2, 5 * j + 1);
+                            Write("--");
+                            SetCursorPosition(7 * i - 2, 5 * j + 2);
+                            Write("--");
+                        }
+                        if (map[i, j].GetHasRight())
+                        {
+                            SetCursorPosition(7 * (i + 1) - 2, 5 * j);
+                            Write("--");
+                            SetCursorPosition(7 * (i + 1) - 2, 5 * j + 1);
+                            Write("--");
+                            SetCursorPosition(7 * (i + 1) - 2, 5 * j + 2);
+                            Write("--");
+                        }
                     }
                 }
                 WriteLine();
+            }
+        }
+        static void PrintArray(Room[] array)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == null) WriteLine("NULL");
+                else WriteLine($"({array[i].GetX()}, {array[i].GetY()})");
             }
         }
         // Main
@@ -311,7 +406,7 @@ namespace labrynthGame
             origin.SetNearbyRooms(upRoom, downRoom, leftRoom, rightRoom);
             origin.SetSet(true);
 
-            string u = upRoom.GetHasUp().ToString();
+            /*string u = upRoom.GetHasUp().ToString();
             string d = upRoom.GetHasDown().ToString();
             string l = upRoom.GetHasLeft().ToString();
             string f = upRoom.GetHasRight().ToString();
@@ -330,36 +425,38 @@ namespace labrynthGame
             d = rightRoom.GetHasDown().ToString();
             l = rightRoom.GetHasLeft().ToString();
             f = rightRoom.GetHasRight().ToString();
-            Write(u + d + l + f + " ");
+            Write(u + d + l + f + " ");*/
 
-            bool allRoomSet = false;
+            //bool allRoomSet = false;
 
             // Completely initialize the whole map
-            while (!allRoomSet)
-            {
-                foreach (Room room in allRooms)
-                {
-                    MakeRoomSet(room, allRooms, lab);
-                }
-                allRoomSet = true;
-                // maybe this can be imporved?
-                foreach (Room room in allRooms)
-                {
-                    if (room != null && !room.GetSet()) allRoomSet = false;
-                }
-            }
-
             foreach (Room room in allRooms)
+            {
+                MakeRoomSet(room, allRooms, lab);
+            }
+            /*allRoomSet = true;
+            // maybe this can be imporved?
+            foreach (Room room in allRooms)
+            {
+                if (room != null && !room.GetSet()) allRoomSet = false;
+            }*/
+
+            //PrintArray(allRooms);
+            //WriteLine();
+
+
+            /*foreach (Room room in allRooms)
             {
                 if (room != null && (room.GetX() == 0 || room.GetX() == 
                   X_SIZE - 1 || room.GetY() == 0 || room.GetY() == Y_SIZE - 1))
                 {
-                    ArrayAppend(endRooms, room); /* I don't think this is correct */ 
+                    ArrayAppend(endRooms, room); //I don't think this is correct
                 }
-            }
+            }*/
 
             // Try printing the entire map and end rooms and see how this works
-            //PrintMap(lab);
+            PrintMap(lab);
+            WriteLine();
             /*WriteLine(lab[X_ORIGIN, Y_ORIGIN].GetHasUp().ToString() +
                 lab[X_ORIGIN, Y_ORIGIN].GetHasDown().ToString() +
                 lab[X_ORIGIN, Y_ORIGIN].GetHasLeft().ToString() +
