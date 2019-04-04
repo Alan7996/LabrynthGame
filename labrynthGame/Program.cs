@@ -164,16 +164,20 @@ namespace labrynthGame
         public void SetNearbyRooms (Room up, Room down, Room left, Room right)
         {
             this.up = up;
-            if (up != null) up.SetDirRoom("d", this);
+            this.hasUp = true;
+            up.SetDirRoom("d", this);
 
             this.down = down;
-            if (down != null) down.SetDirRoom("u", this);
+            this.hasDown = true;
+            down.SetDirRoom("u", this);
 
             this.left = left;
-            if (left != null) left.SetDirRoom("r", this);
+            this.hasLeft = true;
+            left.SetDirRoom("r", this);
 
             this.right = right;
-            if (right != null) right.SetDirRoom("l", this);
+            this.hasRight = true;
+            right.SetDirRoom("l", this);
         }
     }
     class Program
@@ -238,6 +242,48 @@ namespace labrynthGame
                 }
             }
         }
+        static void PrintMap (Room[,] map)
+        {
+            string[] EMPTY_ROOM = new string[3];
+            EMPTY_ROOM[0] = "  -  ";
+            EMPTY_ROOM[1] = "|   |";
+            EMPTY_ROOM[2] = "  -  ";
+            string[] EXIST_ROOM = new string[3];
+            EXIST_ROOM[0] = "  -  ";
+            EXIST_ROOM[1] = "| @ |";
+            EXIST_ROOM[2] = "  -  ";
+            for (int i = 0; i <= map.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j <= map.GetUpperBound(1); j++)
+                {
+                    if (map[i, j] == null)
+                    {
+                        SetCursorPosition(7 * i, 5 * j);
+                        Write(EMPTY_ROOM[0]);
+                        SetCursorPosition(7 * i, 5 * j + 1);
+                        Write(EMPTY_ROOM[1]);
+                        SetCursorPosition(7 * i, 5 * j + 2);
+                        Write(EMPTY_ROOM[2]);
+                        //Write("NULL ");
+
+                    } else
+                    {
+                        SetCursorPosition(7 * i, 5 * j);
+                        Write(EXIST_ROOM[0]);
+                        SetCursorPosition(7 * i, 5 * j + 1);
+                        Write(EXIST_ROOM[1]);
+                        SetCursorPosition(7 * i, 5 * j + 2);
+                        Write(EXIST_ROOM[2]);
+                        /*string u = map[i, j].GetHasUp().ToString();
+                        string d = map[i, j].GetHasDown().ToString();
+                        string l = map[i, j].GetHasLeft().ToString();
+                        string f = map[i, j].GetHasRight().ToString();
+                        Write(u+d+l+f+" ");*/
+                    }
+                }
+                WriteLine();
+            }
+        }
         // Main
         static void Main(string[] args)
         {
@@ -288,6 +334,11 @@ namespace labrynthGame
             }
 
             // Try printing the entire map and end rooms and see how this works
+            PrintMap(lab);
+            /*WriteLine(lab[X_ORIGIN, Y_ORIGIN].GetHasUp().ToString() +
+                lab[X_ORIGIN, Y_ORIGIN].GetHasDown().ToString() +
+                lab[X_ORIGIN, Y_ORIGIN].GetHasLeft().ToString() +
+                lab[X_ORIGIN, Y_ORIGIN].GetHasRight().ToString());*/
         }
     }
 }
