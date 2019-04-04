@@ -38,14 +38,18 @@ namespace labrynthGame
             this.height = r.Next(3, 10);
 
             // Randomly determine if the room has rooms in each direction
+            if (x <= X_ORIGIN + (X_SIZE - X_ORIGIN) / 2 && y <= Y_ORIGIN + (Y_SIZE - Y_ORIGIN) / 2)
+            {
+                
+            }
             if (y == 0) this.hasUp = false;
-            else this.hasUp = (r.Next(100) > 50 ? true : false);
+            else this.hasUp = (r.Next(2) > 0 ? true : false);
             if (y == Y_SIZE - 1) this.hasDown = false;
-            else this.hasDown = (r.Next(100) > 50 ? true : false);
+            else this.hasDown = (r.Next(2) > 0 ? true : false);
             if (x == 0) this.hasLeft = false;
-            else this.hasLeft = (r.Next(100) > 50 ? true : false);
+            else this.hasLeft = (r.Next(2) > 0 ? true : false);
             if (x == X_SIZE - 1) this.hasRight = false;
-            else this.hasRight = (r.Next(100) > 50 ? true : false);
+            else this.hasRight = (r.Next(2) > 0 ? true : false); 
 
             lab[x, y] = this;
         }
@@ -258,21 +262,21 @@ namespace labrynthGame
                 {
                     if (map[i, j] == null)
                     {
-                        SetCursorPosition(7 * i, 5 * j);
-                        Write(EMPTY_ROOM[0]);
                         SetCursorPosition(7 * i, 5 * j + 1);
-                        Write(EMPTY_ROOM[1]);
+                        Write(EMPTY_ROOM[0]);
                         SetCursorPosition(7 * i, 5 * j + 2);
+                        Write(EMPTY_ROOM[1]);
+                        SetCursorPosition(7 * i, 5 * j + 3);
                         Write(EMPTY_ROOM[2]);
                         //Write("NULL ");
 
                     } else
                     {
-                        SetCursorPosition(7 * i, 5 * j);
-                        Write(EXIST_ROOM[0]);
                         SetCursorPosition(7 * i, 5 * j + 1);
-                        Write(EXIST_ROOM[1]);
+                        Write(EXIST_ROOM[0]);
                         SetCursorPosition(7 * i, 5 * j + 2);
+                        Write(EXIST_ROOM[1]);
+                        SetCursorPosition(7 * i, 5 * j + 3);
                         Write(EXIST_ROOM[2]);
                         /*string u = map[i, j].GetHasUp().ToString();
                         string d = map[i, j].GetHasDown().ToString();
@@ -307,6 +311,27 @@ namespace labrynthGame
             origin.SetNearbyRooms(upRoom, downRoom, leftRoom, rightRoom);
             origin.SetSet(true);
 
+            string u = upRoom.GetHasUp().ToString();
+            string d = upRoom.GetHasDown().ToString();
+            string l = upRoom.GetHasLeft().ToString();
+            string f = upRoom.GetHasRight().ToString();
+            Write(u + d + l + f + " ");
+            u = downRoom.GetHasUp().ToString();
+            d = downRoom.GetHasDown().ToString();
+            l = downRoom.GetHasLeft().ToString();
+            f = downRoom.GetHasRight().ToString();
+            Write(u + d + l + f + " ");
+            u = leftRoom.GetHasUp().ToString();
+            d = leftRoom.GetHasDown().ToString();
+            l = leftRoom.GetHasLeft().ToString();
+            f = leftRoom.GetHasRight().ToString();
+            Write(u + d + l + f + " ");
+            u = rightRoom.GetHasUp().ToString();
+            d = rightRoom.GetHasDown().ToString();
+            l = rightRoom.GetHasLeft().ToString();
+            f = rightRoom.GetHasRight().ToString();
+            Write(u + d + l + f + " ");
+
             bool allRoomSet = false;
 
             // Completely initialize the whole map
@@ -334,11 +359,19 @@ namespace labrynthGame
             }
 
             // Try printing the entire map and end rooms and see how this works
-            PrintMap(lab);
+            //PrintMap(lab);
             /*WriteLine(lab[X_ORIGIN, Y_ORIGIN].GetHasUp().ToString() +
                 lab[X_ORIGIN, Y_ORIGIN].GetHasDown().ToString() +
                 lab[X_ORIGIN, Y_ORIGIN].GetHasLeft().ToString() +
                 lab[X_ORIGIN, Y_ORIGIN].GetHasRight().ToString());*/
+
+            // Sample random from range
+            /*var exclude = new HashSet<int>() { 5, 7, 17, 23 };
+            var range = Enumerable.Range(1, 100).Where(i => !exclude.Contains(i));
+
+            var rand = new System.Random();
+            int index = rand.Next(0, 100 - exclude.Count);
+            range.ElementAt(index);*/
         }
     }
 }
