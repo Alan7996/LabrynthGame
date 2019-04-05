@@ -224,11 +224,7 @@ namespace labrynthGame
                     }
                     else
                     {
-                        if (lab[room.GetX(), room.GetY() - 1].GetHasDown())
-                        {
-                            room.SetDirRoom("u", lab[room.GetX(), room.GetY() - 1]);
-                        }
-                        else room.SetHasUp(false);
+                        room.SetDirRoom("u", lab[room.GetX(), room.GetY() - 1]);
                     }
                 }
                 if (room.GetHasDown() && room.GetDown() == null)
@@ -241,11 +237,7 @@ namespace labrynthGame
                     }
                     else
                     {
-                        if (lab[room.GetX(), room.GetY() + 1].GetHasUp())
-                        {
-                            room.SetDirRoom("d", lab[room.GetX(), room.GetY() + 1]);
-                        }
-                        else room.SetHasDown(false);
+                        room.SetDirRoom("d", lab[room.GetX(), room.GetY() + 1]);
                     }
                 }
                 if (room.GetHasLeft() && room.GetLeft() == null)
@@ -258,11 +250,7 @@ namespace labrynthGame
                     }
                     else
                     {
-                        if (lab[room.GetX() - 1, room.GetY()].GetHasRight())
-                        {
-                            room.SetDirRoom("l", lab[room.GetX() - 1, room.GetY()]);
-                        }
-                        else room.SetHasLeft(false);
+                        room.SetDirRoom("l", lab[room.GetX() - 1, room.GetY()]);
                     }
                 }
                 if (room.GetHasRight() && room.GetRight() == null)
@@ -275,11 +263,7 @@ namespace labrynthGame
                     }
                     else
                     {
-                        if (lab[room.GetX() + 1, room.GetY()].GetHasLeft())
-                        {
-                            room.SetDirRoom("r", lab[room.GetX() + 1, room.GetY()]);
-                        }
-                        else room.SetHasRight(false);
+                        room.SetDirRoom("r", lab[room.GetX() + 1, room.GetY()]);
                     }
                 }
                 room.SetSet(true);
@@ -420,7 +404,7 @@ namespace labrynthGame
                 bool isAllSet = true;
                 foreach (Room room in allRooms)
                 {
-                    if (room != null) isAllSet = isAllSet && room.GetSet();
+                    if (room != null) isAllSet &= room.GetSet();
                 }
                 allRoomSet = isAllSet;
             }
