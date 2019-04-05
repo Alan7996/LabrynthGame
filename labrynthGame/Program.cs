@@ -297,16 +297,23 @@ namespace labrynthGame
                 }
             }
         }
+        static int ArrayValidLength (Room[] array)
+        {
+            int res = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] != null) res++;
+            }
+            return res;
+        }
         static void PrintMap (Room[,] map)
         {
             string[] EMPTY_ROOM = new string[3];
+            string[] EXIST_ROOM = new string[3];
             EMPTY_ROOM[0] = "  -  ";
             EMPTY_ROOM[1] = "|   |";
             EMPTY_ROOM[2] = "  -  ";
-            string[] EXIST_ROOM = new string[3];
-            EXIST_ROOM[0] = "  -  ";
-            EXIST_ROOM[1] = "| @ |";
-            EXIST_ROOM[2] = "  -  ";
+
             for (int i = 0; i <= map.GetUpperBound(0); i++)
             {
                 for (int j = 0; j <= map.GetUpperBound(1); j++)
@@ -319,25 +326,19 @@ namespace labrynthGame
                         Write(EMPTY_ROOM[1]);
                         SetCursorPosition(7 * i, 5 * j + 2);
                         Write(EMPTY_ROOM[2]);
-                        //Write("NULL ");
-
                     } else
                     {
                         SetCursorPosition(7 * i, 5 * j);
-                        if (map[i, j].GetHasUp()) EXIST_ROOM[0] = "     ";
+                        EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "     " : "  -  ");
                         Write(EXIST_ROOM[0]);
                         SetCursorPosition(7 * i, 5 * j + 1);
                         EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? " " : "|") + " @ " + (map[i, j].GetHasRight() ? " " : "|");
                         Write(EXIST_ROOM[1]);
                         SetCursorPosition(7 * i, 5 * j + 2);
-                        if (map[i, j].GetHasDown()) EXIST_ROOM[2] = "     ";
+                        EXIST_ROOM[2] = (map[i, j].GetHasDown() ? "     " : "  -  ");
                         Write(EXIST_ROOM[2]);
-                        /*string u = map[i, j].GetHasUp().ToString();
-                        string d = map[i, j].GetHasDown().ToString();
-                        string l = map[i, j].GetHasLeft().ToString();
-                        string f = map[i, j].GetHasRight().ToString();
-                        Write(u+d+l+f+" ");*/
 
+                        // Print inbetween rooms (room connectedness)
                         if (map[i, j].GetHasUp())
                         {
                             SetCursorPosition(7 * i, 5 * j - 2);
@@ -406,41 +407,23 @@ namespace labrynthGame
             origin.SetNearbyRooms(upRoom, downRoom, leftRoom, rightRoom);
             origin.SetSet(true);
 
-            /*string u = upRoom.GetHasUp().ToString();
-            string d = upRoom.GetHasDown().ToString();
-            string l = upRoom.GetHasLeft().ToString();
-            string f = upRoom.GetHasRight().ToString();
-            Write(u + d + l + f + " ");
-            u = downRoom.GetHasUp().ToString();
-            d = downRoom.GetHasDown().ToString();
-            l = downRoom.GetHasLeft().ToString();
-            f = downRoom.GetHasRight().ToString();
-            Write(u + d + l + f + " ");
-            u = leftRoom.GetHasUp().ToString();
-            d = leftRoom.GetHasDown().ToString();
-            l = leftRoom.GetHasLeft().ToString();
-            f = leftRoom.GetHasRight().ToString();
-            Write(u + d + l + f + " ");
-            u = rightRoom.GetHasUp().ToString();
-            d = rightRoom.GetHasDown().ToString();
-            l = rightRoom.GetHasLeft().ToString();
-            f = rightRoom.GetHasRight().ToString();
-            Write(u + d + l + f + " ");*/
-
-            //bool allRoomSet = false;
-
+            bool allRoomSet = false;
             // Completely initialize the whole map
-            foreach (Room room in allRooms)
+            while (!allRoomSet)
             {
-                MakeRoomSet(room, allRooms, lab);
+                int len = ArrayValidLength(allRooms);
+                //WriteLine(len);
+                for (int i = 0; i < len; i++)
+                {
+                    MakeRoomSet(allRooms[i], allRooms, lab);
+                }
+                bool isAllSet = true;
+                foreach (Room room in allRooms)
+                {
+                    if (room != null) isAllSet = isAllSet && room.GetSet();
+                }
+                allRoomSet = isAllSet;
             }
-            /*allRoomSet = true;
-            // maybe this can be imporved?
-            foreach (Room room in allRooms)
-            {
-                if (room != null && !room.GetSet()) allRoomSet = false;
-            }*/
-
             //PrintArray(allRooms);
             //WriteLine();
 
