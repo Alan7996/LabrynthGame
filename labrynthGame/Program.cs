@@ -11,7 +11,7 @@ namespace labrynthGame
     class Global
     {
         public static int X_SIZE = 9, Y_SIZE = 9;
-        public static int X_ORIGIN = X_SIZE / 2, Y_ORIGIN = Y_SIZE / 2;
+        public static int X_ORIGIN = 0, Y_ORIGIN = 0;
     }
     class Room
     {
@@ -26,7 +26,7 @@ namespace labrynthGame
 
         private bool isSet = false;
 
-        public Room(int x, int y, Room[,] lab)
+        public Room(int x, int y)
         {
             // Set room size
             this.x = x;
@@ -37,44 +37,14 @@ namespace labrynthGame
             this.width = r.Next(3, 10);
             this.height = r.Next(3, 10);
 
-            // Randomly determine if the room has rooms in each direction
-            /*if (x <= X_ORIGIN + (X_SIZE - X_ORIGIN) / 2 && y <= Y_ORIGIN + (Y_SIZE - Y_ORIGIN) / 2)
-            {
-                
-            }*/
-            if (y == 0) this.hasUp = false;
-            else this.hasUp = (r.Next(2) > 0 ? true : false);
+            // Randomly determine if the room has rooms to its RIGHT or DOWN
+            // Guarantees continuation to at least one of the two directions
             if (y == Y_SIZE - 1) this.hasDown = false;
             else this.hasDown = (r.Next(2) > 0 ? true : false);
-            if (x == 0) this.hasLeft = false;
-            else this.hasLeft = (r.Next(2) > 0 ? true : false);
+
             if (x == X_SIZE - 1) this.hasRight = false;
+            else if (this.hasDown == false) this.hasRight = true;
             else this.hasRight = (r.Next(2) > 0 ? true : false);
-
-            /*if (Math.Abs(x - X_ORIGIN) == 1 && Math.Abs(y - Y_ORIGIN) == 1)
-            {
-                string[] uplr = new string[4] { "u", "d", "l", "r" };
-                int i = r.Next(4);
-                switch (uplr[i])
-                {
-                    case "u":
-                        this.hasUp = true;
-                        break;
-                    case "d":
-                        this.hasDown = true;
-                        break;
-                    case "l":
-                        this.hasLeft = true;
-                        break;
-                    case "r":
-                        this.hasRight = true;
-                        break;
-                    default:
-                        break;
-                }
-            }*/
-
-            lab[x, y] = this;
         }
 
         // Get/Set Methods
@@ -188,7 +158,7 @@ namespace labrynthGame
             }
             
         }
-        public void SetNearbyRooms (Room up, Room down, Room left, Room right)
+        /*public void SetNearbyRooms (Room up, Room down, Room left, Room right)
         {
             this.up = up;
             this.hasUp = true;
@@ -205,12 +175,12 @@ namespace labrynthGame
             this.right = right;
             this.hasRight = true;
             right.SetDirRoom("l", this);
-        }
+        }*/
     }
     class Program
     {
         // Room methods
-        static void MakeRoomSet (Room room, Room[] allArray, Room[,] lab)
+        /*static void MakeRoomSet (Room room, Room[] allArray, Room[,] lab)
         {
             if (room != null && !room.GetSet())
             {
@@ -268,7 +238,7 @@ namespace labrynthGame
                 }
                 room.SetSet(true);
             }
-        }
+        }*/
         // Array methods
         static void ArrayAppend (Room[] array, Room room)
         {
@@ -375,39 +345,31 @@ namespace labrynthGame
             Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
             Room[,] lab = new Room[X_SIZE, Y_SIZE];
 
-            // Initialize origin room (at the center of the map)
-            Room origin = new Room(X_ORIGIN, Y_ORIGIN, lab);
-            ArrayAppend(allRooms, origin);
-
-            // Initialize first four rooms adjacent to origin
-            Room upRoom = new Room(X_ORIGIN, Y_ORIGIN - 1, lab);
-            Room downRoom = new Room(X_ORIGIN, Y_ORIGIN + 1, lab);
-            Room leftRoom = new Room(X_ORIGIN - 1, Y_ORIGIN, lab);
-            Room rightRoom = new Room(X_ORIGIN + 1, Y_ORIGIN, lab);
-            ArrayAppend(allRooms, upRoom);
-            ArrayAppend(allRooms, downRoom);
-            ArrayAppend(allRooms, leftRoom);
-            ArrayAppend(allRooms, rightRoom);
-            origin.SetNearbyRooms(upRoom, downRoom, leftRoom, rightRoom);
-            origin.SetSet(true);
-
-            bool allRoomSet = false;
-            // Completely initialize the whole map
-            while (!allRoomSet)
+            // Initialize the map with Room objects
+            for (int i = 0; i < X_SIZE; i++)
             {
-                int len = ArrayValidLength(allRooms);
-                //WriteLine(len);
-                for (int i = 0; i < len; i++)
+                for (int j = 0; j < Y_SIZE; j++)
                 {
-                    MakeRoomSet(allRooms[i], allRooms, lab);
+                    lab[i, j] = new Room(i, j);
                 }
-                bool isAllSet = true;
-                foreach (Room room in allRooms)
-                {
-                    if (room != null) isAllSet &= room.GetSet();
-                }
-                allRoomSet = isAllSet;
             }
+
+            for (int i = 0; i < X_SIZE; i++)
+            {
+                for (int j = 0; j < Y_SIZE; j++)
+                {
+                    if (i != 0)
+                    {
+                        if (lab[i-1, j].GetHasRight())
+                        {
+                            lab[i, j].SetDirRoom("l", lab[i - 1, j]);
+                        }
+                        // still working
+                        // consider more cases
+                    }
+                }
+            }
+
             //PrintArray(allRooms);
             //WriteLine();
 
@@ -424,10 +386,6 @@ namespace labrynthGame
             // Try printing the entire map and end rooms and see how this works
             PrintMap(lab);
             WriteLine();
-            /*WriteLine(lab[X_ORIGIN, Y_ORIGIN].GetHasUp().ToString() +
-                lab[X_ORIGIN, Y_ORIGIN].GetHasDown().ToString() +
-                lab[X_ORIGIN, Y_ORIGIN].GetHasLeft().ToString() +
-                lab[X_ORIGIN, Y_ORIGIN].GetHasRight().ToString());*/
 
             // Sample random from range
             /*var exclude = new HashSet<int>() { 5, 7, 17, 23 };
