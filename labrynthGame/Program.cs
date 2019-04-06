@@ -12,6 +12,7 @@ namespace labrynthGame
     {
         public static int X_SIZE = 9, Y_SIZE = 9;
         public static int X_ORIGIN = 0, Y_ORIGIN = 0;
+        public static Random r = new Random();
     }
     class Room
     {
@@ -28,20 +29,25 @@ namespace labrynthGame
 
         public Room(int x, int y)
         {
-            // Set room size
+            // Set room coordinate
             this.x = x;
             this.y = y;
             
-            Random r = new Random();
             // Randomly determine the room's width, height
             this.width = r.Next(3, 10);
             this.height = r.Next(3, 10);
 
             // Randomly determine if the room has rooms to its RIGHT or DOWN
             // Guarantees continuation to at least one of the two directions
+            if (x == 0 && y == 0)
+            {
+                this.hasDown = true;
+                this.hasRight = true;
+                return;
+            }
+
             if (y == Y_SIZE - 1) this.hasDown = false;
             else this.hasDown = (r.Next(2) > 0 ? true : false);
-
             if (x == X_SIZE - 1) this.hasRight = false;
             else if (this.hasDown == false) this.hasRight = true;
             else this.hasRight = (r.Next(2) > 0 ? true : false);
@@ -342,7 +348,7 @@ namespace labrynthGame
         static void Main(string[] args)
         {
             Room[] allRooms = new Room[X_SIZE * Y_SIZE];
-            Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
+            //Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
             Room[,] lab = new Room[X_SIZE, Y_SIZE];
 
             // Initialize the map with Room objects
@@ -364,8 +370,13 @@ namespace labrynthGame
                         {
                             lab[i, j].SetDirRoom("l", lab[i - 1, j]);
                         }
-                        // still working
-                        // consider more cases
+                    }
+                    if (j != 0)
+                    {
+                        if (lab[i, j - 1].GetHasDown())
+                        {
+                            lab[i, j].SetDirRoom("u", lab[i, j - 1]);
+                        }
                     }
                 }
             }
