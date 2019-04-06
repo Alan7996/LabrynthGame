@@ -11,7 +11,7 @@ namespace labrynthGame
     class Global
     {
         public static int X_SIZE = 9, Y_SIZE = 9;
-        public static int X_ORIGIN = 0, Y_ORIGIN = 0;
+        public static int X_ORIGIN = X_SIZE / 2, Y_ORIGIN = Y_SIZE / 2;
         public static Random r = new Random();
     }
     class Room
@@ -27,9 +27,9 @@ namespace labrynthGame
 
         private bool isSet = false;
 
-        public Room(int x, int y)
+        public Room(int x, int y, Room[,] lab)
         {
-            // Set room coordinate
+            // Set room size
             this.x = x;
             this.y = y;
             
@@ -37,44 +37,41 @@ namespace labrynthGame
             this.width = r.Next(3, 10);
             this.height = r.Next(3, 10);
 
-            // Randomly determine if the room has rooms to its RIGHT or DOWN
-            // Guarantees continuation to at least one of the two directions
-            if (x == 0 && y == 0)
-            {
-                this.hasDown = true;
-                this.hasRight = true;
-                return;
-            }
-
+            // Randomly determine if the room has rooms in each direction
+            if (y == 0) this.hasUp = false;
+            else this.hasUp = (r.Next(2) > 0 ? true : false);
             if (y == Y_SIZE - 1) this.hasDown = false;
             else this.hasDown = (r.Next(2) > 0 ? true : false);
+            if (x == 0) this.hasLeft = false;
+            else this.hasLeft = (r.Next(2) > 0 ? true : false);
             if (x == X_SIZE - 1) this.hasRight = false;
-            else if (this.hasDown == false) this.hasRight = true;
             else this.hasRight = (r.Next(2) > 0 ? true : false);
+
+            lab[x, y] = this;
         }
 
         // Get/Set Methods
-        public int GetX ()
+        public int GetX()
         {
             return this.x;
         }
-        public int GetY ()
+        public int GetY()
         {
             return this.y;
         }
-        public bool GetHasUp ()
+        public bool GetHasUp()
         {
             return this.hasUp;
         }
-        public bool GetHasDown ()
+        public bool GetHasDown()
         {
             return this.hasDown;
         }
-        public bool GetHasLeft ()
+        public bool GetHasLeft()
         {
             return this.hasLeft;
         }
-        public bool GetHasRight ()
+        public bool GetHasRight()
         {
             return this.hasRight;
         }
@@ -98,11 +95,11 @@ namespace labrynthGame
         {
             return this.up;
         }
-        public Room GetDown ()
+        public Room GetDown()
         {
             return this.down;
         }
-        public Room GetLeft ()
+        public Room GetLeft()
         {
             return this.left;
         }
@@ -110,17 +107,21 @@ namespace labrynthGame
         {
             return this.right;
         }
-        public void SetSet (bool inp)
+        public void SetSet(bool inp)
         {
             this.isSet = inp;
         }
-        public bool GetSet ()
+        public bool GetSet()
         {
             return this.isSet;
         }
 
         // Other class methods
-        public void SetDirRoom (string dir, Room room)
+        public void PrintCoord()
+        {
+            WriteLine($"({this.x}, {this.y})");
+        }
+        public void SetDirRoom(string dir, Room room)
         {
             if (dir == "u")
             {
@@ -162,9 +163,10 @@ namespace labrynthGame
                     room.SetDirRoom("l", this);
                 }
             }
-            
+
         }
-        /*public void SetNearbyRooms (Room up, Room down, Room left, Room right)
+        // Specifically for origin room
+        public void SetOriginNearby(Room up, Room down, Room left, Room right)
         {
             this.up = up;
             this.hasUp = true;
@@ -181,12 +183,17 @@ namespace labrynthGame
             this.right = right;
             this.hasRight = true;
             right.SetDirRoom("l", this);
-        }*/
+        }
+        // Specifically for exit room
+        public void SetExitRoom()
+        {
+            // disconnect other connections except one
+        }
     }
     class Program
     {
         // Room methods
-        /*static void MakeRoomSet (Room room, Room[] allArray, Room[,] lab)
+        static void MakeRoomSet(Room room, Room[] allArray, Room[,] lab)
         {
             if (room != null && !room.GetSet())
             {
@@ -244,9 +251,9 @@ namespace labrynthGame
                 }
                 room.SetSet(true);
             }
-        }*/
+        }
         // Array methods
-        static void ArrayAppend (Room[] array, Room room)
+        static void ArrayAppend(Room[] array, Room room)
         {
             for (int i = 0; i < array.Length; i++)
             {
@@ -257,7 +264,7 @@ namespace labrynthGame
                 }
             }
         }
-        static int ArrayValidLength (Room[] array)
+        static int ArrayValidLength(Room[] array)
         {
             int res = 0;
             for (int i = 0; i < array.Length; i++)
@@ -266,7 +273,7 @@ namespace labrynthGame
             }
             return res;
         }
-        static void PrintMap (Room[,] map)
+        static void PrintMap(Room[,] map)
         {
             string[] EMPTY_ROOM = new string[3];
             string[] EXIST_ROOM = new string[3];
@@ -286,7 +293,8 @@ namespace labrynthGame
                         Write(EMPTY_ROOM[1]);
                         SetCursorPosition(7 * i, 5 * j + 2);
                         Write(EMPTY_ROOM[2]);
-                    } else
+                    }
+                    else
                     {
                         SetCursorPosition(7 * i, 5 * j);
                         EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "     " : "  -  ");
@@ -341,70 +349,67 @@ namespace labrynthGame
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i] == null) WriteLine("NULL");
-                else WriteLine($"({array[i].GetX()}, {array[i].GetY()})");
+                else array[i].PrintCoord();
             }
         }
         // Main
         static void Main(string[] args)
         {
             Room[] allRooms = new Room[X_SIZE * Y_SIZE];
-            //Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
+            Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
             Room[,] lab = new Room[X_SIZE, Y_SIZE];
 
-            // Initialize the map with Room objects
-            for (int i = 0; i < X_SIZE; i++)
+            // Create origin room (at the center of the map)
+            Room origin = new Room(X_ORIGIN, Y_ORIGIN, lab);
+            ArrayAppend(allRooms, origin);
+
+            // Create first four rooms adjacent to origin
+            Room upRoom = new Room(X_ORIGIN, Y_ORIGIN - 1, lab);
+            Room downRoom = new Room(X_ORIGIN, Y_ORIGIN + 1, lab);
+            Room leftRoom = new Room(X_ORIGIN - 1, Y_ORIGIN, lab);
+            Room rightRoom = new Room(X_ORIGIN + 1, Y_ORIGIN, lab);
+            ArrayAppend(allRooms, upRoom);
+            ArrayAppend(allRooms, downRoom);
+            ArrayAppend(allRooms, leftRoom);
+            ArrayAppend(allRooms, rightRoom);
+            origin.SetOriginNearby(upRoom, downRoom, leftRoom, rightRoom);
+            origin.SetSet(true);
+
+            // Create the whole map
+            bool allRoomSet = false;
+            while (!allRoomSet)
             {
-                for (int j = 0; j < Y_SIZE; j++)
+                int len = ArrayValidLength(allRooms);
+                for (int i = 0; i < len; i++)
                 {
-                    lab[i, j] = new Room(i, j);
+                    MakeRoomSet(allRooms[i], allRooms, lab);
+                }
+
+                allRoomSet = true;
+                foreach (Room room in allRooms)
+                {
+                    // if at least one room is NOT set, repeat loop
+                    if (room != null) allRoomSet &= room.GetSet();
                 }
             }
-
-            for (int i = 0; i < X_SIZE; i++)
-            {
-                for (int j = 0; j < Y_SIZE; j++)
-                {
-                    if (i != 0)
-                    {
-                        if (lab[i-1, j].GetHasRight())
-                        {
-                            lab[i, j].SetDirRoom("l", lab[i - 1, j]);
-                        }
-                    }
-                    if (j != 0)
-                    {
-                        if (lab[i, j - 1].GetHasDown())
-                        {
-                            lab[i, j].SetDirRoom("u", lab[i, j - 1]);
-                        }
-                    }
-                }
-            }
-
-            //PrintArray(allRooms);
-            //WriteLine();
-
-
-            /*foreach (Room room in allRooms)
+            
+            // Add all rooms that are at the edge of the map to endRooms
+            foreach (Room room in allRooms)
             {
                 if (room != null && (room.GetX() == 0 || room.GetX() == 
                   X_SIZE - 1 || room.GetY() == 0 || room.GetY() == Y_SIZE - 1))
                 {
-                    ArrayAppend(endRooms, room); //I don't think this is correct
+                    ArrayAppend(endRooms, room);
                 }
-            }*/
+            }
 
-            // Try printing the entire map and end rooms and see how this works
+            // Select one of the elements of endRooms as the final exitRoom
+            int endRoomsCount = ArrayValidLength(endRooms);
+            Room exitRoom = endRooms[r.Next(endRoomsCount)];
+            
             PrintMap(lab);
             WriteLine();
-
-            // Sample random from range
-            /*var exclude = new HashSet<int>() { 5, 7, 17, 23 };
-            var range = Enumerable.Range(1, 100).Where(i => !exclude.Contains(i));
-
-            var rand = new System.Random();
-            int index = rand.Next(0, 100 - exclude.Count);
-            range.ElementAt(index);*/
+            exitRoom.PrintCoord();
         }
     }
 }
