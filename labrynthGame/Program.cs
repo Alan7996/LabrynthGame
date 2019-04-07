@@ -32,7 +32,7 @@ namespace labrynthGame
             // Set room size
             this.x = x;
             this.y = y;
-            
+
             // Randomly determine the room's width, height
             this.width = r.Next(3, 10);
             this.height = r.Next(3, 10);
@@ -107,6 +107,22 @@ namespace labrynthGame
         {
             return this.right;
         }
+        public void SetUp(Room room)
+        {
+            this.up = room;
+        }
+        public void SetDown(Room room)
+        {
+            this.down = room;
+        }
+        public void SetLeft(Room room)
+        {
+            this.left = room;
+        }
+        public void SetRight(Room room)
+        {
+            this.right = room;
+        }
         public void SetSet(bool inp)
         {
             this.isSet = inp;
@@ -163,7 +179,93 @@ namespace labrynthGame
                     room.SetDirRoom("l", this);
                 }
             }
-
+        }
+        public void DiscDirRoom(string dir)
+        {
+            if (dir == "u")
+            {
+                if (this.down != null)
+                {
+                    this.hasDown = false;
+                    this.down.SetHasUp(false);
+                    this.down.SetUp(null);
+                }
+                if (this.left != null)
+                {
+                    this.hasLeft = false;
+                    this.left.SetHasRight(false);
+                    this.left.SetRight(null);
+                }
+                if (this.right != null)
+                {
+                    this.hasRight = false;
+                    this.right.SetHasLeft(false);
+                    this.right.SetLeft(null);
+                }
+            }
+            else if (dir == "d")
+            {
+                if (this.up != null)
+                {
+                    this.hasUp = false;
+                    this.up.SetHasDown(false);
+                    this.up.SetDown(null);
+                }
+                if (this.left != null)
+                {
+                    this.hasLeft = false;
+                    this.left.SetHasRight(false);
+                    this.left.SetRight(null);
+                }
+                if (this.right != null)
+                {
+                    this.hasRight = false;
+                    this.right.SetHasLeft(false);
+                    this.right.SetLeft(null);
+                }
+            }
+            else if (dir == "l")
+            {
+                if (this.up != null)
+                {
+                    this.hasUp = false;
+                    this.up.SetHasDown(false);
+                    this.up.SetDown(null);
+                }
+                if (this.down != null)
+                {
+                    this.hasDown = false;
+                    this.down.SetHasUp(false);
+                    this.down.SetUp(null);
+                }
+                if (this.right != null)
+                {
+                    this.hasRight = false;
+                    this.right.SetHasLeft(false);
+                    this.right.SetLeft(null);
+                }
+            }
+            else
+            {
+                if (this.up != null)
+                {
+                    this.hasUp = false;
+                    this.up.SetHasDown(false);
+                    this.up.SetDown(null);
+                }
+                if (this.down != null)
+                {
+                    this.hasDown = false;
+                    this.down.SetHasUp(false);
+                    this.down.SetUp(null);
+                }
+                if (this.left != null)
+                {
+                    this.hasLeft = false;
+                    this.left.SetHasRight(false);
+                    this.left.SetRight(null);
+                }
+            }
         }
         // Specifically for origin room
         public void SetOriginNearby(Room up, Room down, Room left, Room right)
@@ -188,6 +290,40 @@ namespace labrynthGame
         public void SetExitRoom()
         {
             // disconnect other connections except one
+            while (true)
+            {
+                switch (r.Next(4))
+                {
+                    case 0:
+                        if (this.hasUp == true)
+                        {
+                            this.DiscDirRoom("u");
+                            return;
+                        }
+                        break;
+                    case 1:
+                        if (this.hasDown == true)
+                        {
+                            this.DiscDirRoom("d");
+                            return;
+                        }
+                        break;
+                    case 2:
+                        if (this.hasLeft == true)
+                        {
+                            this.DiscDirRoom("l");
+                            return;
+                        }
+                        break;
+                    default:
+                        if (this.hasRight == true)
+                        {
+                            this.DiscDirRoom("r");
+                            return;
+                        }
+                        break;
+                }
+            }
         }
     }
     class Program
@@ -392,11 +528,11 @@ namespace labrynthGame
                     if (room != null) allRoomSet &= room.GetSet();
                 }
             }
-            
+
             // Add all rooms that are at the edge of the map to endRooms
             foreach (Room room in allRooms)
             {
-                if (room != null && (room.GetX() == 0 || room.GetX() == 
+                if (room != null && (room.GetX() == 0 || room.GetX() ==
                   X_SIZE - 1 || room.GetY() == 0 || room.GetY() == Y_SIZE - 1))
                 {
                     ArrayAppend(endRooms, room);
@@ -406,7 +542,8 @@ namespace labrynthGame
             // Select one of the elements of endRooms as the final exitRoom
             int endRoomsCount = ArrayValidLength(endRooms);
             Room exitRoom = endRooms[r.Next(endRoomsCount)];
-            
+            exitRoom.SetExitRoom();
+
             PrintMap(lab);
             WriteLine();
             exitRoom.PrintCoord();
