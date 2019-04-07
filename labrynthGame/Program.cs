@@ -412,10 +412,10 @@ namespace labrynthGame
         static void PrintMap(Room[,] map)
         {
             string[] EMPTY_ROOM = new string[3];
-            string[] EXIST_ROOM = new string[3];
-            EMPTY_ROOM[0] = "  -  ";
-            EMPTY_ROOM[1] = "|   |";
-            EMPTY_ROOM[2] = "  -  ";
+            string[] EXIST_ROOM = new string[6];
+            EMPTY_ROOM[0] = "    ─    ";
+            EMPTY_ROOM[1] = "          ";
+            EMPTY_ROOM[2] = "│      │";
 
             for (int i = 0; i <= map.GetUpperBound(0); i++)
             {
@@ -423,57 +423,72 @@ namespace labrynthGame
                 {
                     if (map[i, j] == null)
                     {
-                        SetCursorPosition(7 * i, 5 * j);
+                        SetCursorPosition(12 * i, 7 * j);
                         Write(EMPTY_ROOM[0]);
-                        SetCursorPosition(7 * i, 5 * j + 1);
+                        SetCursorPosition(12 * i, 7 * j + 1);
                         Write(EMPTY_ROOM[1]);
-                        SetCursorPosition(7 * i, 5 * j + 2);
+                        SetCursorPosition(12 * i, 7 * j + 2);
                         Write(EMPTY_ROOM[2]);
+                        SetCursorPosition(12 * i, 7 * j + 3);
+                        Write(EMPTY_ROOM[2]);
+                        SetCursorPosition(12 * i, 7 * j + 4);
+                        Write(EMPTY_ROOM[1]);
+                        SetCursorPosition(12 * i, 7 * j + 5);
+                        Write(EMPTY_ROOM[0]);
                     }
                     else
                     {
-                        SetCursorPosition(7 * i, 5 * j);
-                        EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "     " : "  -  ");
+                        SetCursorPosition(12 * i, 8 * j);
+                        EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "┼      ┼" : "┼───┼");
                         Write(EXIST_ROOM[0]);
-                        SetCursorPosition(7 * i, 5 * j + 1);
-                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? " " : "|") + " @ " + (map[i, j].GetHasRight() ? " " : "|");
+                        SetCursorPosition(12 * i, 8 * j + 1);
+                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? "  " : "│") + "      " + (map[i, j].GetHasRight() ? "  " : "│");
                         Write(EXIST_ROOM[1]);
-                        SetCursorPosition(7 * i, 5 * j + 2);
-                        EXIST_ROOM[2] = (map[i, j].GetHasDown() ? "     " : "  -  ");
+                        SetCursorPosition(12 * i, 8 * j + 2);
+                        EXIST_ROOM[2] = (map[i, j].GetHasLeft() ? "  " : "│") + "  @@  " + (map[i, j].GetHasRight() ? "  " : "│");
                         Write(EXIST_ROOM[2]);
+                        SetCursorPosition(12 * i, 8 * j + 3);
+                        EXIST_ROOM[3] = EXIST_ROOM[2];
+                        Write(EXIST_ROOM[3]);
+                        SetCursorPosition(12 * i, 8 * j + 4);
+                        EXIST_ROOM[4] = EXIST_ROOM[1];
+                        Write(EXIST_ROOM[4]);
+                        SetCursorPosition(12 * i, 8 * j + 5);
+                        EXIST_ROOM[5] = (map[i, j].GetHasDown() ? "┼      ┼" : "┼───┼");
+                        Write(EXIST_ROOM[5]);
 
                         // Print inbetween rooms (room connectedness)
                         if (map[i, j].GetHasUp())
                         {
-                            SetCursorPosition(7 * i, 5 * j - 2);
-                            Write("| | |");
-                            SetCursorPosition(7 * i, 5 * j - 1);
-                            Write("| | |");
+                            SetCursorPosition(12 * i, 8 * j - 2);
+                            Write("│  │  │");
+                            SetCursorPosition(12 * i, 8 * j - 1);
+                            Write("│  │  │");
                         }
                         if (map[i, j].GetHasDown())
                         {
-                            SetCursorPosition(7 * i, 5 * (j + 1) - 2);
-                            Write("| | |");
-                            SetCursorPosition(7 * i, 5 * (j + 1) - 1);
-                            Write("| | |");
+                            SetCursorPosition(12 * i, 8 * (j + 1) - 2);
+                            Write("│  │  │");
+                            SetCursorPosition(12 * i, 8 * (j + 1) - 1);
+                            Write("│  │  │");
                         }
                         if (map[i, j].GetHasLeft())
                         {
-                            SetCursorPosition(7 * i - 2, 5 * j);
-                            Write("--");
-                            SetCursorPosition(7 * i - 2, 5 * j + 1);
-                            Write("--");
-                            SetCursorPosition(7 * i - 2, 5 * j + 2);
-                            Write("--");
+                            SetCursorPosition(12 * i - 2, 8 * j);
+                            Write("─");
+                            SetCursorPosition(12 * i - 2, 8 * j + 1);
+                            Write("─");
+                            SetCursorPosition(12 * i - 2, 8 * j + 2);
+                            Write("─");
                         }
                         if (map[i, j].GetHasRight())
                         {
-                            SetCursorPosition(7 * (i + 1) - 2, 5 * j);
-                            Write("--");
-                            SetCursorPosition(7 * (i + 1) - 2, 5 * j + 1);
-                            Write("--");
-                            SetCursorPosition(7 * (i + 1) - 2, 5 * j + 2);
-                            Write("--");
+                            SetCursorPosition(12 * (i + 1) - 2, 8 * j);
+                            Write("─");
+                            SetCursorPosition(12 * (i + 1) - 2, 8 * j + 1);
+                            Write("─");
+                            SetCursorPosition(12 * (i + 1) - 2, 8 * j + 2);
+                            Write("─");
                         }
                     }
                 }
