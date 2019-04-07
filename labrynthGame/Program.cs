@@ -411,32 +411,13 @@ namespace labrynthGame
         }
         static void PrintMap(Room[,] map)
         {
-            string[] EMPTY_ROOM = new string[3];
             string[] EXIST_ROOM = new string[6];
-            EMPTY_ROOM[0] = "    ─    ";
-            EMPTY_ROOM[1] = "          ";
-            EMPTY_ROOM[2] = "│      │";
 
             for (int i = 0; i <= map.GetUpperBound(0); i++)
             {
                 for (int j = 0; j <= map.GetUpperBound(1); j++)
                 {
-                    if (map[i, j] == null)
-                    {
-                        SetCursorPosition(12 * i, 7 * j);
-                        Write(EMPTY_ROOM[0]);
-                        SetCursorPosition(12 * i, 7 * j + 1);
-                        Write(EMPTY_ROOM[1]);
-                        SetCursorPosition(12 * i, 7 * j + 2);
-                        Write(EMPTY_ROOM[2]);
-                        SetCursorPosition(12 * i, 7 * j + 3);
-                        Write(EMPTY_ROOM[2]);
-                        SetCursorPosition(12 * i, 7 * j + 4);
-                        Write(EMPTY_ROOM[1]);
-                        SetCursorPosition(12 * i, 7 * j + 5);
-                        Write(EMPTY_ROOM[0]);
-                    }
-                    else
+                    if (map[i, j] != null)
                     {
                         SetCursorPosition(12 * i, 8 * j);
                         EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "┼      ┼" : "┼───┼");
