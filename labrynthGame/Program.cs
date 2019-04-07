@@ -29,7 +29,7 @@ namespace labrynthGame
 
         public Room(int x, int y, Room[,] lab)
         {
-            // Set room size
+            // Set room coordinate
             this.x = x;
             this.y = y;
 
@@ -58,6 +58,14 @@ namespace labrynthGame
         public int GetY()
         {
             return this.y;
+        }
+        public int GetWidth()
+        {
+            return this.width;
+        }
+        public int GetHeight()
+        {
+            return this.height;
         }
         public bool GetHasUp()
         {
@@ -326,6 +334,47 @@ namespace labrynthGame
             }
         }
     }
+    class Player
+    {
+        // player's position in the room
+        private int x, y;
+        private string[] sprite = new string[2];
+
+        public Player(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+
+            sprite[0] = "@@";
+            sprite[1] = "@@";
+        }
+
+        // Get/Set Methods
+        public int GetX()
+        {
+            return this.x;
+        }
+        public int GetY()
+        {
+            return this.y;
+        }
+        public void SetX(int x)
+        {
+            this.x = x;
+        }
+        public void SetY(int y)
+        {
+            this.y = y;
+        }
+
+        public void PrintChar(int x, int y)
+        {
+            SetCursorPosition(x, y);
+            Write(sprite[0]);
+            SetCursorPosition(x, y + 1);
+            Write(sprite[1]);
+        }
+    }
     class Program
     {
         // Room methods
@@ -482,6 +531,34 @@ namespace labrynthGame
                 else array[i].PrintCoord();
             }
         }
+        static void PrintGame(Room room, Player player)
+        {
+            WriteLine("PrintGame called");
+
+            int printPosX = 5, printPosY = 5;
+            int mapX = room.GetX() + 1, mapY = room.GetY() + 1;
+            int charX = player.GetX(), charY = player.GetY();
+
+            SetCursorPosition(printPosX, printPosY);
+            string horiz = "";
+            string horizEmpty = "";
+            for (int i = 0; i < mapX; i++)
+            {
+                horiz += "─";
+                horiz += "  ";
+            }
+            Write("┌" + horiz + "┐");
+            for (int i = 0; i < (mapY - 1) * 2; i++)
+            {
+                SetCursorPosition(printPosX, printPosY + i + 1);
+                Write("│" + horizEmpty + "│");
+            }
+            SetCursorPosition(printPosX, printPosY + mapY * 2 - 1);
+            Write("└" + horiz + "┘");
+
+            SetCursorPosition(printPosX + 2 + charX * 2, printPosY + 1 + charY * 2);
+            player.PrintChar(printPosX + 2 + charX * 2, printPosY + 1 + charY * 2);
+        }
         // Main
         static void Main(string[] args)
         {
@@ -537,10 +614,39 @@ namespace labrynthGame
             int endRoomsCount = ArrayValidLength(endRooms);
             Room exitRoom = endRooms[r.Next(endRoomsCount)];
             exitRoom.SetExitRoom();
+            // All background setup should be complete by now
 
-            PrintMap(lab);
-            WriteLine();
-            exitRoom.PrintCoord();
+
+            // Gameplay
+            Room currRoom = origin;
+            Player player = new Player(origin.GetWidth() / 2, origin.GetHeight() / 2);
+
+            // If user presses 'm', show or hide the map
+            bool mOpen = false;
+            while (true)
+            {
+                PrintGame(currRoom, player);
+                ConsoleKey inp = Console.ReadKey(true).Key
+                if (inp == ConsoleKey.M)
+                {
+                    if (mOpen) {
+                        // Display the map after clearing the screen
+                        Clear();
+                        PrintMap(lab);
+                        WriteLine();
+                        exitRoom.PrintCoord();
+                        mOpen = true;
+                    }
+                    else
+                    {
+                        // Close map and return to original screen by using
+                        // previously saved gameState
+                        Clear();
+                        mOpen = false;
+                        PrintGame(currRoom, player);
+                    }
+                }
+            }
         }
     }
 }
