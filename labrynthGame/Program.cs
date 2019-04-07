@@ -621,12 +621,14 @@ namespace labrynthGame
             Room currRoom = origin;
             Player player = new Player(origin.GetWidth() / 2, origin.GetHeight() / 2);
 
-            // If user presses 'm', show or hide the map
             bool mOpen = false;
+            PrintGame(currRoom, player);
             while (true)
             {
-                PrintGame(currRoom, player);
                 ConsoleKey inp = Console.ReadKey(true).Key
+                // If an arrow is pressed, go to that direction
+                
+                // If user presses 'm', show or hide the map
                 if (inp == ConsoleKey.M)
                 {
                     if (mOpen) {
