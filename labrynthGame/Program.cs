@@ -411,7 +411,7 @@ namespace labrynthGame
         }
         static void PrintMap(Room[,] map)
         {
-            string[] EXIST_ROOM = new string[6];
+            string[] EXIST_ROOM = new string[4];
 
             for (int i = 0; i <= map.GetUpperBound(0); i++)
             {
@@ -429,14 +429,12 @@ namespace labrynthGame
                         EXIST_ROOM[2] = (map[i, j].GetHasLeft() ? "  " : "│") + "  @@  " + (map[i, j].GetHasRight() ? "  " : "│");
                         Write(EXIST_ROOM[2]);
                         SetCursorPosition(12 * i, 8 * j + 3);
-                        EXIST_ROOM[3] = EXIST_ROOM[2];
-                        Write(EXIST_ROOM[3]);
+                        Write(EXIST_ROOM[2]);
                         SetCursorPosition(12 * i, 8 * j + 4);
-                        EXIST_ROOM[4] = EXIST_ROOM[1];
-                        Write(EXIST_ROOM[4]);
+                        Write(EXIST_ROOM[1]);
                         SetCursorPosition(12 * i, 8 * j + 5);
-                        EXIST_ROOM[5] = (map[i, j].GetHasDown() ? "┼      ┼" : "┼───┼");
-                        Write(EXIST_ROOM[5]);
+                        EXIST_ROOM[3] = (map[i, j].GetHasDown() ? "┼      ┼" : "┼───┼");
+                        Write(EXIST_ROOM[3]);
 
                         // Print inbetween rooms (room connectedness)
                         if (map[i, j].GetHasUp())
