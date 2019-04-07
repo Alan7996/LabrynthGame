@@ -538,11 +538,11 @@ namespace labrynthGame
                 else array[i].PrintCoord();
             }
         }
-        static Tuple<int, int> PrintOriginRoom(Room room, Player player)
+        static Tuple<int, int> PrintOriginRoom(Room room, int posX, int posY)
         {
             int mapScale = 4;
             int mapX = room.GetWidth() * 2, mapY = room.GetHeight();
-            int charX = 2 + player.GetX() * mapScale * 2, charY = 1 + player.GetY() * mapScale;
+            int charX = 2 + posX * mapScale * 2, charY = 1 + posY * mapScale;
             mapX *= mapScale; mapY *= mapScale;
             mapX += 1; mapY += 2;
 
@@ -568,7 +568,6 @@ namespace labrynthGame
             Write("└" + horiz + "┘");
 
             //WriteLine($"Char : {printPosX + charX}, {printPosY + charY}");
-            player.PrintChar(printPosX + charX, printPosY + charY);
             return new Tuple<int, int>(printPosX + charX, printPosY + charY);
         }
         // Main
@@ -642,7 +641,8 @@ namespace labrynthGame
             Console.CursorVisible = false;
 
             bool mOpen = false;
-            Tuple<int, int> pos = PrintOriginRoom(currRoom, player);
+            Tuple<int, int> pos = PrintOriginRoom(currRoom, player.GetX(), player.GetY());
+            player.PrintChar(pos.Item1, pos.Item2);
             while (true)
             {
                 ConsoleKey inp = Console.ReadKey(true).Key;
@@ -705,7 +705,8 @@ namespace labrynthGame
                         // previously saved gameState
                         Console.Clear();
                         mOpen = false;
-                        PrintOriginRoom(currRoom, player);
+                        PrintOriginRoom(currRoom, pos.Item1, pos.Item2);
+                        player.PrintChar(pos.Item1, pos.Item2);
                     }
                 }
             }
