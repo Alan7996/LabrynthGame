@@ -382,8 +382,17 @@ namespace labrynthGame
         public void PrintHealth()
         {
             SetCursorPosition(0, 0);
-            Write($"Player Health : ");
-            for (int i = 0; i < this.health; i++) Write("口");
+            if (this.health == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                WriteLine("YOU DIED");
+                gameOver = true;
+            }
+            else
+            {
+                Write($"Player Health : ");
+                for (int i = 0; i < this.health; i++) Write("口");
+            }
         }
     }
     class Enemy
@@ -548,31 +557,24 @@ namespace labrynthGame
                         break;
                 }
             }
-
-            if (player.GetHealth() == 0)
-            {
-                SetCursorPosition(0, 0);
-                WriteLine("YOU DIED");
-                gameOver = true;
-            }
-            player.PrintHealth();
         }
         static int RockScissorPaper()
         {
             SetCursorPosition(0, 3);
-            WriteLine("0 - Rock, 1 - Scissors, 2 - Paper");
+            WriteLine("1 - Rock, 2 - Scissors, 3 - Paper");
 
-            int enemy = r.Next(3);
-            int player = int.Parse(ReadLine());
+            int enemy = r.Next(1, 4);
+            int player;
+            int.TryParse(ReadLine(), out player);
 
-            while (player > 2 || player < 0)
+            while (player > 3 || player < 1)
             {
                 WriteLine("Invalid choice");
                 SetCursorPosition(0, 4);
                 Write(new string(' ', Console.WindowWidth));
                 SetCursorPosition(0, 3);
-                WriteLine("0 - Rock, 1 - Scissors, 2 - Paper");
-                player = int.Parse(ReadLine());
+                WriteLine("1 - Rock, 2 - Scissors, 3 - Paper");
+                int.TryParse(ReadLine(), out player);
             }
 
             if (player == enemy)
@@ -580,9 +582,9 @@ namespace labrynthGame
                 // draw
                 return 0;
             }
-            else if (player == 0 && enemy == 1
-                || player == 1 && enemy == 2
-                || player == 2 && enemy == 0)
+            else if (player == 1 && enemy == 2
+                || player == 2 && enemy == 3
+                || player == 3 && enemy == 1)
             {
                 // win
                 return 1;
