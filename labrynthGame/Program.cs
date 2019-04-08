@@ -14,6 +14,7 @@ namespace labrynthGame
         public static int X_ORIGIN = X_SIZE / 2, Y_ORIGIN = Y_SIZE / 2;
         public static int printPosX = 20, printPosY = 10, printPosX2 = 0, printPosY2 = 0;
         public static int mapScale = 5;
+        public static bool gameOver = false;
         public static Random r = new Random();
     }
     class Room
@@ -326,12 +327,15 @@ namespace labrynthGame
     {
         // player's position in the room
         private int x, y;
+        private int health;
         private string[] sprite = new string[1];
 
         public Player(int x, int y)
         {
             this.x = x;
             this.y = y;
+
+            this.health = 10;
 
             sprite[0] = "@";
             //sprite[1] = "@@";
@@ -354,13 +358,51 @@ namespace labrynthGame
         {
             this.y = y;
         }
+        public int GetHealth()
+        {
+            return this.health;
+        }
+        public void DecHealth()
+        {
+            this.health--;
+        }
 
         public void PrintChar(int x, int y)
         {
             SetCursorPosition(x, y);
             Write(sprite[0]);
+            this.PrintHealth();
             //SetCursorPosition(x, y + 1);
             //Write(sprite[1]);
+        }
+        public void PrintHealth()
+        {
+            SetCursorPosition(0, 0);
+            Write($"Player Health : {this.health}");
+        }
+    }
+    class Enemy
+    {
+        private int health;
+
+        public Enemy()
+        {
+            this.health = r.Next(3) + 1;
+        }
+
+        public int GetHealth()
+        {
+            return this.health;
+        }
+        public void DecHealth()
+        {
+            this.health--;
+        }
+
+        public void PrintHealth()
+        {
+            SetCursorPosition(0, 1);
+            Write($"Enemy Health : {this.health}");
         }
     }
     class Program
@@ -465,6 +507,79 @@ namespace labrynthGame
                 }
             }
             return null;
+        }
+        // Random Encounter
+        static Enemy RandonEncounter()
+        {
+            bool didEncounter = r.Next(15) < 1 ? true : false;
+            if (didEncounter)
+            {
+                return new Enemy();
+            }
+            return null;
+        }
+        static void EnemyCombat(Player player, Enemy enemy)
+        {
+            if (enemy == null) return; // no encounter
+            Console.Clear();
+
+            while (player.GetHealth() != 0 && enemy.GetHealth() != 0)
+            {
+                player.PrintHealth();
+                enemy.PrintHealth();
+                switch (RockScissorPaper())
+                {
+                    case 1:
+                        // win
+                        enemy.DecHealth();
+                        break;
+                    case -1:
+                        // lose
+                        player.DecHealth();
+                        break;
+                    default:
+                        // draw, do it again
+                        break;
+                }
+            }
+
+            if (player.GetHealth() == 0)
+            {
+                SetCursorPosition(0, 0);
+                WriteLine("YOU DIED");
+                gameOver = true;
+            }
+            player.PrintHealth();
+        }
+        static int RockScissorPaper()
+        {
+            WriteLine();
+            WriteLine("0 - Rock, 1 - Scissors, 2 - Paper");
+
+            int enemy = r.Next(3);
+            int player = int.Parse(ReadLine());
+
+            while (player > 2 || player < 0)
+            {
+                WriteLine("Invalid choice");
+                WriteLine("0 - Rock, 1 - Scissors, 2 - Paper");
+                player = int.Parse(ReadLine());
+            }
+
+            if (player == enemy)
+            {
+                // draw
+                return 0;
+            }
+            else if (player == 0 && enemy == 1
+                || player == 1 && enemy == 2
+                || player == 2 && enemy == 0)
+            {
+                // win
+                return 1;
+            }
+            // lose
+            return -1;
         }
         // Print methods
         static void PrintMap(Room[,] map)
@@ -642,6 +757,7 @@ namespace labrynthGame
              * Window width : 110, height : 65
              */
 
+            // Background Setup
             Room[] allRooms = new Room[X_SIZE * Y_SIZE];
             Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
             Room[,] lab = new Room[X_SIZE, Y_SIZE];
@@ -718,7 +834,7 @@ namespace labrynthGame
             player.PrintChar(pos.Item1, pos.Item2);
             SetCursorPosition(0, 0);
             WriteLine($"{exitRoom.GetX()}, {exitRoom.GetY()}");
-            while (true)
+            while (!gameOver)
             {
                 ConsoleKey inp = Console.ReadKey(true).Key;
                 // If an arrow is pressed, go to that direction
@@ -739,9 +855,17 @@ namespace labrynthGame
                             {
                                 SetCursorPosition(0, 0);
                                 WriteLine("Game Cleared");
-                                return;
+                                gameOver = true;
                             }
                         }
+
+                        // Random encounter
+                        Enemy enemy = RandonEncounter();
+                        EnemyCombat(player, enemy);
+
+                        PrintRoom(currRoom, pos.Item1, pos.Item2);
+                        PrintExitRoom(currRoom, exitRoom);
+                        player.PrintChar(pos.Item1, pos.Item2);
                     }
                     else
                     {
@@ -772,9 +896,17 @@ namespace labrynthGame
                             {
                                 SetCursorPosition(0, 0);
                                 WriteLine("Game Cleared");
-                                return;
+                                gameOver = true;
                             }
                         }
+
+                        // Random encounter
+                        Enemy enemy = RandonEncounter();
+                        EnemyCombat(player, enemy);
+
+                        PrintRoom(currRoom, pos.Item1, pos.Item2);
+                        PrintExitRoom(currRoom, exitRoom);
+                        player.PrintChar(pos.Item1, pos.Item2);
                     }
                     else
                     {
@@ -805,9 +937,17 @@ namespace labrynthGame
                             {
                                 SetCursorPosition(0, 0);
                                 WriteLine("Game Cleared");
-                                return;
+                                gameOver = true;
                             }
                         }
+
+                        // Random encounter
+                        Enemy enemy = RandonEncounter();
+                        EnemyCombat(player, enemy);
+
+                        PrintRoom(currRoom, pos.Item1, pos.Item2);
+                        PrintExitRoom(currRoom, exitRoom);
+                        player.PrintChar(pos.Item1, pos.Item2);
                     }
                     else
                     {
@@ -837,9 +977,17 @@ namespace labrynthGame
                             {
                                 SetCursorPosition(0, 0);
                                 WriteLine("Game Cleared");
-                                return;
+                                gameOver = true;
                             }
                         }
+
+                        // Random encounter
+                        Enemy enemy = RandonEncounter();
+                        EnemyCombat(player, enemy);
+
+                        PrintRoom(currRoom, pos.Item1, pos.Item2);
+                        PrintExitRoom(currRoom, exitRoom);
+                        player.PrintChar(pos.Item1, pos.Item2);
                     }
                     else
                     {
@@ -860,16 +1008,14 @@ namespace labrynthGame
                     if (!mOpen)
                     {
                         mOpen = true;
-                        // Display the map after clearing the screen
+                        // Display the map and highlight current room
                         PrintMap(lab);
                         HighlightCurrRoom(currRoom);
-                        //WriteLine();
-                        //exitRoom.PrintCoord();
                     }
                     else
                     {
                         // Close map and return to original screen by using
-                        // previously saved gameState
+                        // previously saved charafcter position
                         mOpen = false;
                         PrintRoom(currRoom, pos.Item1, pos.Item2);
                         PrintExitRoom(currRoom, exitRoom);
