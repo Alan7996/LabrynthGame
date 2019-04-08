@@ -243,6 +243,7 @@ namespace labrynthGame
         private int x, y;
         private int health;
         private string[] sprite = new string[1];
+        private Item[] inventory = new Item[10];
 
         public Player(int x, int y)
         {
@@ -285,6 +286,22 @@ namespace labrynthGame
             this.health += hp;
             if (this.health > 100) this.health = 100;
         }
+        public Item[] GetInven()
+        {
+            return this.inventory;
+        }
+        public bool AddItem(Item item)
+        {
+            for (int i = 0; i < this.inventory.Length; i++)
+            {
+                if (inventory[i] != null)
+                {
+                    inventory[i] = item;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public int Attack()
         {
@@ -305,6 +322,15 @@ namespace labrynthGame
             }
 
             return res;
+        }
+        public void UseItem(int index)
+        {
+            WriteLine($"Healed {inventory[index].GetHeal()} HP!");
+            this.IncHealth(inventory[index].GetHeal());
+            for (int i = index + 1; i < inventory.Length; i++)
+            {
+                if (inventory[i] != null) inventory[i - 1] = inventory[i];
+            }
         }
         public bool TryRun()
         {
@@ -379,6 +405,26 @@ namespace labrynthGame
             SetCursorPosition(0, 1);
             Write($"Enemy Health : {this.health}");
             //for (int i = 0; i < this.health; i++) Write("口");
+        }
+    }
+    class Item
+    {
+        private string name;
+        private int heal;
+
+        public Item()
+        {
+            this.heal = r.Next(0, 11) * 10;
+            this.name = "Potion" + this.heal.ToString();
+        }
+
+        public string GetName()
+        {
+            return this.name;
+        }
+        public int GetHeal()
+        {
+            return this.heal;
         }
     }
     class Program
@@ -514,8 +560,8 @@ namespace labrynthGame
 
                 Tuple<int, int> res = BattleSim(player, enemy);
                 if (res.Item1 == -1 && res.Item2 == -1) return true;
-                player.DecHealth(res.Item1);
-                enemy.DecHealth(res.Item2);
+                player.DecHealth(res.Item2);
+                enemy.DecHealth(res.Item1);
             }
             return true;
         }
@@ -531,9 +577,9 @@ namespace labrynthGame
             while (input > 3 || input < 1)
             {
                 WriteLine("Invalid choice");
-                SetCursorPosition(0, 4);
-                Write(new string(' ', Console.WindowWidth));
                 SetCursorPosition(0, 3);
+                Write(new string(' ', Console.WindowWidth));
+                SetCursorPosition(0, 2);
                 WriteLine("1 - Attack, 2 - Item, 3 - Run");
                 int.TryParse(ReadLine(), out input);
             }
@@ -545,10 +591,23 @@ namespace labrynthGame
                     enemyDmg = enemy.Attack();
                     break;
                 case 2:
+                    PrintItems(player);
+
+                    int.TryParse(ReadLine(), out input);
+                    while (input > 10 || input < 1)
+                    {
+                        WriteLine("Invalid choice");
+                        int.TryParse(ReadLine(), out input);
+                    }
+                    player.UseItem(input);
+
+                    enemyDmg = enemy.Attack();
                     break;
                 case 3:
                     if (player.TryRun()) return new Tuple<int, int>(-1, -1);
                     WriteLine("Failed to run away!");
+
+                    enemyDmg = enemy.Attack();
                     break;
                 default:
                     WriteLine("This should never be printed");
@@ -557,43 +616,6 @@ namespace labrynthGame
 
             return new Tuple<int, int>(playerDmg, enemyDmg);
         }
-        /*static int RockScissorPaper()
-        {
-            // Simple Rock Scissor Paper game to replace combat
-            SetCursorPosition(0, 3);
-            WriteLine("1 - Rock, 2 - Scissors, 3 - Paper");
-
-            int enemy = r.Next(1, 4);
-            int player;
-            int.TryParse(ReadLine(), out player);
-
-            if (player == 4) return 1; // developer cheat
-
-            while (player > 3 || player < 1)
-            {
-                WriteLine("Invalid choice");
-                SetCursorPosition(0, 4);
-                Write(new string(' ', Console.WindowWidth));
-                SetCursorPosition(0, 3);
-                WriteLine("1 - Rock, 2 - Scissors, 3 - Paper");
-                int.TryParse(ReadLine(), out player);
-            }
-
-            if (player == enemy)
-            {
-                // draw
-                return 0;
-            }
-            else if (player == 1 && enemy == 2
-                || player == 2 && enemy == 3
-                || player == 3 && enemy == 1)
-            {
-                // win
-                return 1;
-            }
-            // lose
-            return -1;
-        }*/
         // Print methods
         static void PrintMap(Room[,] map)
         {
@@ -763,6 +785,16 @@ namespace labrynthGame
                 Write(EXIT[3]);
 
                 Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+        static void PrintItems(Player player)
+        {
+            Item[] inven = player.GetInven();
+
+            // Print inventory
+            for (int i = 0; i < inven.Length; i++)
+            {
+                if (inven[i] != null) WriteLine($"{i + 1}. {inven[i].GetName()}");
             }
         }
         // Main
