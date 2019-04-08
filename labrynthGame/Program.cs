@@ -249,7 +249,7 @@ namespace labrynthGame
             this.x = x;
             this.y = y;
 
-            this.health = 10;
+            this.health = 100;
 
             sprite[0] = "@";
         }
@@ -275,15 +275,44 @@ namespace labrynthGame
         {
             return this.health;
         }
-        public void DecHealth()
+        public void DecHealth(int dmg)
         {
-            this.health--;
+            this.health -= dmg;
+            if (this.health < 0) this.health = 0;
         }
-        public void SetHealth(int hp)
+        public void IncHealth(int hp)
         {
-            this.health = hp;
+            this.health += hp;
+            if (this.health > 100) this.health = 100;
         }
 
+        public int Attack()
+        {
+            // Attack missed?
+            if (r.Next(10) < 1 ? true : false)
+            {
+                WriteLine("Attack Missed!");
+                return 0;
+            }
+
+            int res = r.Next(10, 31);
+
+            // Check critical
+            if (r.Next(5) < 1 ? true : false)
+            {
+                WriteLine("Crtiical!");
+                res *= 2;
+            }
+
+            return res;
+        }
+        public bool TryRun()
+        {
+            bool res = r.Next(3) > 0 ? true : false;
+            return res;
+        }
+
+        // Print methods
         public void PrintChar(int x, int y)
         {
             SetCursorPosition(x, y);
@@ -301,8 +330,8 @@ namespace labrynthGame
             }
             else
             {
-                Write($"Player Health : ");
-                for (int i = 0; i < this.health; i++) Write("口");
+                Write($"Player Health : {this.health}");
+                //for (int i = 0; i < this.health; i++) Write("口");
             }
         }
     }
@@ -312,23 +341,44 @@ namespace labrynthGame
 
         public Enemy()
         {
-            this.health = r.Next(3) + 1;
+            this.health = r.Next(20, 41);
         }
 
         public int GetHealth()
         {
             return this.health;
         }
-        public void DecHealth()
+        public void DecHealth(int dmg)
         {
-            this.health--;
+            this.health -= dmg;
+            if (this.health < 0) this.health = 0;
+        }
+
+        public int Attack()
+        {
+            if (r.Next(10) < 1 ? true : false)
+            {
+                WriteLine("Attack Missed!");
+                return 0;
+            }
+
+            int res = r.Next(1, 11);
+
+            // Check critical
+            if (r.Next(5) < 1 ? true : false)
+            {
+                WriteLine("Crtiical!");
+                res *= 2;
+            }
+
+            return res;
         }
 
         public void PrintHealth()
         {
             SetCursorPosition(0, 1);
-            Write($"Enemy Health : ");
-            for (int i = 0; i < this.health; i++) Write("口");
+            Write($"Enemy Health : {this.health}");
+            //for (int i = 0; i < this.health; i++) Write("口");
         }
     }
     class Program
@@ -461,24 +511,53 @@ namespace labrynthGame
                 Console.Clear();
                 player.PrintHealth();
                 enemy.PrintHealth();
-                switch (RockScissorPaper())
-                {
-                    case 1:
-                        // win
-                        enemy.DecHealth();
-                        break;
-                    case -1:
-                        // lose
-                        player.DecHealth();
-                        break;
-                    default:
-                        // draw, do it again
-                        break;
-                }
+
+                Tuple<int, int> res = BattleSim(player, enemy);
+                if (res.Item1 == -1 && res.Item2 == -1) return true;
+                player.DecHealth(res.Item1);
+                enemy.DecHealth(res.Item2);
             }
             return true;
         }
-        static int RockScissorPaper()
+        static Tuple<int, int> BattleSim(Player player, Enemy enemy)
+        {
+            int playerDmg = 0, enemyDmg = 0;
+
+            SetCursorPosition(0, 2);
+            WriteLine("1 - Attack, 2 - Item, 3 - Run");
+            int input;
+            int.TryParse(ReadLine(), out input);
+
+            while (input > 3 || input < 1)
+            {
+                WriteLine("Invalid choice");
+                SetCursorPosition(0, 4);
+                Write(new string(' ', Console.WindowWidth));
+                SetCursorPosition(0, 3);
+                WriteLine("1 - Attack, 2 - Item, 3 - Run");
+                int.TryParse(ReadLine(), out input);
+            }
+
+            switch (input)
+            {
+                case 1:
+                    playerDmg = player.Attack();
+                    enemyDmg = enemy.Attack();
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    if (player.TryRun()) return new Tuple<int, int>(-1, -1);
+                    WriteLine("Failed to run away!");
+                    break;
+                default:
+                    WriteLine("This should never be printed");
+                    break;
+            }
+
+            return new Tuple<int, int>(playerDmg, enemyDmg);
+        }
+        /*static int RockScissorPaper()
         {
             // Simple Rock Scissor Paper game to replace combat
             SetCursorPosition(0, 3);
@@ -487,6 +566,8 @@ namespace labrynthGame
             int enemy = r.Next(1, 4);
             int player;
             int.TryParse(ReadLine(), out player);
+
+            if (player == 4) return 1; // developer cheat
 
             while (player > 3 || player < 1)
             {
@@ -512,7 +593,7 @@ namespace labrynthGame
             }
             // lose
             return -1;
-        }
+        }*/
         // Print methods
         static void PrintMap(Room[,] map)
         {
@@ -815,7 +896,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + currRoom.GetDownDoor() + 1, printPosY2 - 2);
                             PrintExitRoom(currRoom, exitRoom);
-                            player.SetHealth(10); // Replenish health
+                            //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -861,7 +942,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + currRoom.GetUpDoor() + 1, printPosY + 1);
                             PrintExitRoom(currRoom, exitRoom);
-                            player.SetHealth(10); // Replenish health
+                            //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -906,7 +987,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX2, printPosY + currRoom.GetRightDoor());
                             PrintExitRoom(currRoom, exitRoom);
-                            player.SetHealth(10); // Replenish health
+                            //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -951,7 +1032,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + 2, printPosY + currRoom.GetLeftDoor());
                             PrintExitRoom(currRoom, exitRoom);
-                            player.SetHealth(10); // Replenish health
+                            //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
