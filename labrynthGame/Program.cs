@@ -175,6 +175,7 @@ namespace labrynthGame
         }
         public void SetDirRoom(string dir, Room room)
         {
+            // Sets connection to a given direction with a given room
             if (dir == "u")
             {
                 this.hasUp = true;
@@ -216,93 +217,6 @@ namespace labrynthGame
                 }
             }
         }
-        public void DiscDirRoom(string dir)
-        {
-            if (dir == "u")
-            {
-                if (this.down != null)
-                {
-                    this.hasDown = false;
-                    this.down.SetHasUp(false);
-                    this.down.SetUp(null);
-                }
-                if (this.left != null)
-                {
-                    this.hasLeft = false;
-                    this.left.SetHasRight(false);
-                    this.left.SetRight(null);
-                }
-                if (this.right != null)
-                {
-                    this.hasRight = false;
-                    this.right.SetHasLeft(false);
-                    this.right.SetLeft(null);
-                }
-            }
-            else if (dir == "d")
-            {
-                if (this.up != null)
-                {
-                    this.hasUp = false;
-                    this.up.SetHasDown(false);
-                    this.up.SetDown(null);
-                }
-                if (this.left != null)
-                {
-                    this.hasLeft = false;
-                    this.left.SetHasRight(false);
-                    this.left.SetRight(null);
-                }
-                if (this.right != null)
-                {
-                    this.hasRight = false;
-                    this.right.SetHasLeft(false);
-                    this.right.SetLeft(null);
-                }
-            }
-            else if (dir == "l")
-            {
-                if (this.up != null)
-                {
-                    this.hasUp = false;
-                    this.up.SetHasDown(false);
-                    this.up.SetDown(null);
-                }
-                if (this.down != null)
-                {
-                    this.hasDown = false;
-                    this.down.SetHasUp(false);
-                    this.down.SetUp(null);
-                }
-                if (this.right != null)
-                {
-                    this.hasRight = false;
-                    this.right.SetHasLeft(false);
-                    this.right.SetLeft(null);
-                }
-            }
-            else
-            {
-                if (this.up != null)
-                {
-                    this.hasUp = false;
-                    this.up.SetHasDown(false);
-                    this.up.SetDown(null);
-                }
-                if (this.down != null)
-                {
-                    this.hasDown = false;
-                    this.down.SetHasUp(false);
-                    this.down.SetUp(null);
-                }
-                if (this.left != null)
-                {
-                    this.hasLeft = false;
-                    this.left.SetHasRight(false);
-                    this.left.SetRight(null);
-                }
-            }
-        }
         // Specifically for origin room
         public void SetOriginNearby(Room up, Room down, Room left, Room right)
         {
@@ -338,7 +252,6 @@ namespace labrynthGame
             this.health = 10;
 
             sprite[0] = "@";
-            //sprite[1] = "@@";
         }
 
         // Get/Set Methods
@@ -376,8 +289,6 @@ namespace labrynthGame
             SetCursorPosition(x, y);
             Write(sprite[0]);
             this.PrintHealth();
-            //SetCursorPosition(x, y + 1);
-            //Write(sprite[1]);
         }
         public void PrintHealth()
         {
@@ -425,6 +336,7 @@ namespace labrynthGame
         // Room methods
         static void MakeRoomSet(Room room, Room[] allArray, Room[,] lab)
         {
+            // Set up all connections inbetween rooms
             if (room != null && !room.GetSet())
             {
                 if (room.GetHasUp() && room.GetUp() == null)
@@ -484,6 +396,7 @@ namespace labrynthGame
         }
         static bool CheckOneConnection(Room room)
         {
+            // Return true if the room has only one door
             if (room.GetHasUp() && !room.GetHasDown() && !room.GetHasLeft() && !room.GetHasRight()
                 || room.GetHasDown() && !room.GetHasUp() && !room.GetHasLeft() && !room.GetHasRight()
                 || room.GetHasLeft() && !room.GetHasUp() && !room.GetHasDown() && !room.GetHasRight()
@@ -494,6 +407,7 @@ namespace labrynthGame
         // Array methods
         static void ArrayAppend(Room[] array, Room room)
         {
+            // Add room object to the first empty index
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i] == null)
@@ -505,6 +419,8 @@ namespace labrynthGame
         }
         static int ArrayValidLength(Room[] array)
         {
+            // Returns the valid length of an array
+            // array should to be sorted with all null indices after valid ones
             int res = 0;
             for (int i = 0; i < array.Length; i++)
             {
@@ -514,6 +430,7 @@ namespace labrynthGame
         }
         static Room FirstRoom(Room[,] map)
         {
+            // Return the first valid room in the map
             for (int i = 0; i <= map.GetUpperBound(0); i++)
             {
                 for (int j = 0; j <= map.GetUpperBound(1); j++)
@@ -526,6 +443,7 @@ namespace labrynthGame
         // Random Encounter
         static Enemy RandonEncounter()
         {
+            // Randomly determine if the character encounters an enemy
             bool didEncounter = r.Next(20) < 1 ? true : false;
             if (didEncounter)
             {
@@ -533,12 +451,13 @@ namespace labrynthGame
             }
             return null;
         }
-        static void EnemyCombat(Player player, Enemy enemy)
+        static bool EnemyCombat(Player player, Enemy enemy)
         {
-            if (enemy == null) return; // no encounter
+            if (enemy == null) return false; // no encounter
 
             while (player.GetHealth() != 0 && enemy.GetHealth() != 0)
             {
+                // Repeat combat until the death of either player or enemy
                 Console.Clear();
                 player.PrintHealth();
                 enemy.PrintHealth();
@@ -557,9 +476,11 @@ namespace labrynthGame
                         break;
                 }
             }
+            return true;
         }
         static int RockScissorPaper()
         {
+            // Simple Rock Scissor Paper game to replace combat
             SetCursorPosition(0, 3);
             WriteLine("1 - Rock, 2 - Scissors, 3 - Paper");
 
@@ -603,14 +524,17 @@ namespace labrynthGame
                 {
                     if (map[i, j] != null)
                     {
+                        // Print the room itself depending on its connections
                         SetCursorPosition(12 * i, 8 * j);
                         EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "┼        ┼" : "┼────────┼ ");
                         Write(EXIST_ROOM[0]);
                         SetCursorPosition(12 * i, 8 * j + 1);
-                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? "  " : "│ ") + "      " + (map[i, j].GetHasRight() ? "  " : " │ ");
+                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? "  " : "│ ")
+                            + "      " + (map[i, j].GetHasRight() ? "  " : " │ ");
                         Write(EXIST_ROOM[1]);
                         SetCursorPosition(12 * i, 8 * j + 2);
-                        EXIST_ROOM[2] = (map[i, j].GetHasLeft() ? "  " : "│ ") + "  @@@ " + (map[i, j].GetHasRight() ? "  " : " │ ");
+                        EXIST_ROOM[2] = (map[i, j].GetHasLeft() ? "  " : "│ ")
+                            + "  @@@ " + (map[i, j].GetHasRight() ? "  " : " │ ");
                         Write(EXIST_ROOM[2]);
                         SetCursorPosition(12 * i, 8 * j + 3);
                         Write(EXIST_ROOM[2]);
@@ -664,6 +588,7 @@ namespace labrynthGame
         }
         static void HighlightCurrRoom(Room room)
         {
+            // Print current room in red on top of the map
             string[] EXIST_ROOM = new string[4];
             int i = room.GetX(), j = room.GetY();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -689,23 +614,23 @@ namespace labrynthGame
         }
         static void PrintArray(Room[] array)
         {
+            // Print all coordinates in the array for debuggin
             for (int i = 0; i < array.Length; i++)
             {
-                if (array[i] == null) WriteLine("NULL");
-                else array[i].PrintCoord();
+                if (array[i] != null) array[i].PrintCoord();
             }
         }
         static Tuple<int, int> PrintRoom(Room room, int posX, int posY)
         {
+            // Draws a given room with player at (posX, posY)
             Console.Clear();
+            // Coordinate calculations
             int mapX = room.GetWidth() * 2, mapY = room.GetHeight();
             int charX = 2 + posX * mapScale * 2, charY = 1 + posY * mapScale;
             mapX *= mapScale; mapY *= mapScale;
             mapX += 1; mapY += 2;
 
             printPosX2 = printPosX + mapX; printPosY2 = printPosY + mapY;
-            //WriteLine($"Room : ({room.GetWidth()}, {room.GetHeight()}) : Player : {player.GetX()}, {player.GetY()}");
-            //WriteLine($"Map : {mapX}, {mapY}");
             
             SetCursorPosition(printPosX, printPosY);
             string horizUp = "";
@@ -730,12 +655,12 @@ namespace labrynthGame
             }
             SetCursorPosition(printPosX, printPosY + mapY - 1);
             Write("└" + horizDown + "┘");
-
-            //WriteLine($"Char : {printPosX + charX}, {printPosY + charY}");
+            
             return new Tuple<int, int>(printPosX + charX, printPosY + charY);
         }
         static void PrintExitRoom (Room currRoom, Room exitRoom)
         {
+            // Print blue box exit at the exit room
             if (currRoom == exitRoom)
             {
                 string[] EXIT = new string[4];
@@ -844,12 +769,11 @@ namespace labrynthGame
             Tuple<int, int> pos = PrintRoom(currRoom, player.GetX(), player.GetY());
             player.PrintChar(pos.Item1, pos.Item2);
             //SetCursorPosition(0, 0);
-            //WriteLine($"{exitRoom.GetX()}, {exitRoom.GetY()}");
+            //exitRoom.PrintCoord();
             while (!gameOver)
             {
                 ConsoleKey inp = Console.ReadKey(true).Key;
-                // If an arrow is pressed, go to that direction
-                // need to make room transition when entering through a door
+                // If an arrow is pressed, go to that direction by one tile
                 if (inp == ConsoleKey.UpArrow && mOpen == false)
                 {
                     if (pos.Item2 != printPosY + 1)
@@ -858,6 +782,8 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1, pos.Item2 - 1);
                         player.PrintChar(pos.Item1, pos.Item2);
+
+                        // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
                         {
                             int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
@@ -872,11 +798,13 @@ namespace labrynthGame
 
                         // Random encounter
                         Enemy enemy = RandonEncounter();
-                        EnemyCombat(player, enemy);
-
-                        PrintRoom(currRoom, pos.Item1, pos.Item2);
-                        PrintExitRoom(currRoom, exitRoom);
-                        player.PrintChar(pos.Item1, pos.Item2);
+                        if (EnemyCombat(player, enemy))
+                        {
+                            // Print room again after combat 
+                            PrintRoom(currRoom, pos.Item1, pos.Item2);
+                            PrintExitRoom(currRoom, exitRoom);
+                            player.PrintChar(pos.Item1, pos.Item2);
+                        }
                     }
                     else
                     {
@@ -900,6 +828,8 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1, pos.Item2 + 1);
                         player.PrintChar(pos.Item1, pos.Item2);
+
+                        // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
                         {
                             int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
@@ -914,11 +844,13 @@ namespace labrynthGame
 
                         // Random encounter
                         Enemy enemy = RandonEncounter();
-                        EnemyCombat(player, enemy);
-
-                        PrintRoom(currRoom, pos.Item1, pos.Item2);
-                        PrintExitRoom(currRoom, exitRoom);
-                        player.PrintChar(pos.Item1, pos.Item2);
+                        if (EnemyCombat(player, enemy))
+                        {
+                            // Print room again after combat 
+                            PrintRoom(currRoom, pos.Item1, pos.Item2);
+                            PrintExitRoom(currRoom, exitRoom);
+                            player.PrintChar(pos.Item1, pos.Item2);
+                        }
                     }
                     else
                     {
@@ -942,6 +874,8 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1 - 1, pos.Item2);
                         player.PrintChar(pos.Item1, pos.Item2);
+
+                        // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
                         {
                             int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3 + 8;
@@ -956,11 +890,13 @@ namespace labrynthGame
 
                         // Random encounter
                         Enemy enemy = RandonEncounter();
-                        EnemyCombat(player, enemy);
-
-                        PrintRoom(currRoom, pos.Item1, pos.Item2);
-                        PrintExitRoom(currRoom, exitRoom);
-                        player.PrintChar(pos.Item1, pos.Item2);
+                        if (EnemyCombat(player, enemy))
+                        {
+                            // Print room again after combat 
+                            PrintRoom(currRoom, pos.Item1, pos.Item2);
+                            PrintExitRoom(currRoom, exitRoom);
+                            player.PrintChar(pos.Item1, pos.Item2);
+                        }
                     }
                     else
                     {
@@ -983,6 +919,8 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1 + 1, pos.Item2);
                         player.PrintChar(pos.Item1, pos.Item2);
+
+                        // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
                         {
                             int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
@@ -997,11 +935,13 @@ namespace labrynthGame
 
                         // Random encounter
                         Enemy enemy = RandonEncounter();
-                        EnemyCombat(player, enemy);
-
-                        PrintRoom(currRoom, pos.Item1, pos.Item2);
-                        PrintExitRoom(currRoom, exitRoom);
-                        player.PrintChar(pos.Item1, pos.Item2);
+                        if (EnemyCombat(player, enemy))
+                        {
+                            // Print room again after combat 
+                            PrintRoom(currRoom, pos.Item1, pos.Item2);
+                            PrintExitRoom(currRoom, exitRoom);
+                            player.PrintChar(pos.Item1, pos.Item2);
+                        }
                     }
                     else
                     {
