@@ -366,6 +366,10 @@ namespace labrynthGame
         {
             this.health--;
         }
+        public void SetHealth(int hp)
+        {
+            this.health = hp;
+        }
 
         public void PrintChar(int x, int y)
         {
@@ -378,7 +382,8 @@ namespace labrynthGame
         public void PrintHealth()
         {
             SetCursorPosition(0, 0);
-            Write($"Player Health : {this.health}");
+            Write($"Player Health : ");
+            for (int i = 0; i < this.health; i++) Write("口");
         }
     }
     class Enemy
@@ -402,7 +407,8 @@ namespace labrynthGame
         public void PrintHealth()
         {
             SetCursorPosition(0, 1);
-            Write($"Enemy Health : {this.health}");
+            Write($"Enemy Health : ");
+            for (int i = 0; i < this.health; i++) Write("口");
         }
     }
     class Program
@@ -511,7 +517,7 @@ namespace labrynthGame
         // Random Encounter
         static Enemy RandonEncounter()
         {
-            bool didEncounter = r.Next(15) < 1 ? true : false;
+            bool didEncounter = r.Next(20) < 1 ? true : false;
             if (didEncounter)
             {
                 return new Enemy();
@@ -521,10 +527,10 @@ namespace labrynthGame
         static void EnemyCombat(Player player, Enemy enemy)
         {
             if (enemy == null) return; // no encounter
-            Console.Clear();
 
             while (player.GetHealth() != 0 && enemy.GetHealth() != 0)
             {
+                Console.Clear();
                 player.PrintHealth();
                 enemy.PrintHealth();
                 switch (RockScissorPaper())
@@ -553,7 +559,7 @@ namespace labrynthGame
         }
         static int RockScissorPaper()
         {
-            WriteLine();
+            SetCursorPosition(0, 3);
             WriteLine("0 - Rock, 1 - Scissors, 2 - Paper");
 
             int enemy = r.Next(3);
@@ -562,6 +568,9 @@ namespace labrynthGame
             while (player > 2 || player < 0)
             {
                 WriteLine("Invalid choice");
+                SetCursorPosition(0, 4);
+                Write(new string(' ', Console.WindowWidth));
+                SetCursorPosition(0, 3);
                 WriteLine("0 - Rock, 1 - Scissors, 2 - Paper");
                 player = int.Parse(ReadLine());
             }
@@ -832,8 +841,8 @@ namespace labrynthGame
             bool mOpen = false;
             Tuple<int, int> pos = PrintRoom(currRoom, player.GetX(), player.GetY());
             player.PrintChar(pos.Item1, pos.Item2);
-            SetCursorPosition(0, 0);
-            WriteLine($"{exitRoom.GetX()}, {exitRoom.GetY()}");
+            //SetCursorPosition(0, 0);
+            //WriteLine($"{exitRoom.GetX()}, {exitRoom.GetY()}");
             while (!gameOver)
             {
                 ConsoleKey inp = Console.ReadKey(true).Key;
@@ -876,6 +885,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + currRoom.GetDownDoor() + 1, printPosY2 - 2);
                             PrintExitRoom(currRoom, exitRoom);
+                            player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -917,6 +927,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + currRoom.GetUpDoor() + 1, printPosY + 1);
                             PrintExitRoom(currRoom, exitRoom);
+                            player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -957,6 +968,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX2, printPosY + currRoom.GetRightDoor());
                             PrintExitRoom(currRoom, exitRoom);
+                            player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -997,6 +1009,7 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + 2, printPosY + currRoom.GetLeftDoor());
                             PrintExitRoom(currRoom, exitRoom);
+                            player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
