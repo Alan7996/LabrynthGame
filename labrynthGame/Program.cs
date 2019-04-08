@@ -21,10 +21,10 @@ namespace labrynthGame
         private int x, y;
 
         private int width, height;
-
-        // Position for door; if 0, no door
+        
         private bool hasUp, hasDown, hasLeft, hasRight;
         private Room up, down, left, right;
+        // Position for door; if -1, no door
         private int upDoor = -1, downDoor = -1, leftDoor = -1, rightDoor = -1;
 
         private bool isSet = false;
@@ -321,45 +321,6 @@ namespace labrynthGame
             this.hasRight = true;
             right.SetDirRoom("l", this);
         }
-        // Specifically for exit room
-        public void SetExitRoom()
-        {
-            // disconnect other connections except one
-            while (true)
-            {
-                switch (r.Next(4))
-                {
-                    case 0:
-                        if (this.hasUp == true)
-                        {
-                            this.DiscDirRoom("u");
-                            return;
-                        }
-                        break;
-                    case 1:
-                        if (this.hasDown == true)
-                        {
-                            this.DiscDirRoom("d");
-                            return;
-                        }
-                        break;
-                    case 2:
-                        if (this.hasLeft == true)
-                        {
-                            this.DiscDirRoom("l");
-                            return;
-                        }
-                        break;
-                    default:
-                        if (this.hasRight == true)
-                        {
-                            this.DiscDirRoom("r");
-                            return;
-                        }
-                        break;
-                }
-            }
-        }
     }
     class Player
     {
@@ -464,6 +425,15 @@ namespace labrynthGame
                 room.SetDoorPos();
                 room.SetSet(true);
             }
+        }
+        static bool CheckOneConnection(Room room)
+        {
+            if (room.GetHasUp() && !room.GetHasDown() && !room.GetHasLeft() && !room.GetHasRight()
+                || room.GetHasDown() && !room.GetHasUp() && !room.GetHasLeft() && !room.GetHasRight()
+                || room.GetHasLeft() && !room.GetHasUp() && !room.GetHasDown() && !room.GetHasRight()
+                || room.GetHasRight() && !room.GetHasUp() && !room.GetHasDown() && !room.GetHasLeft())
+                return true;
+            return false;
         }
         // Array methods
         static void ArrayAppend(Room[] array, Room room)
@@ -652,22 +622,18 @@ namespace labrynthGame
                 if (room != null && (room.GetX() == 0 || room.GetX() ==
                   X_SIZE - 1 || room.GetY() == 0 || room.GetY() == Y_SIZE - 1))
                 {
-                    ArrayAppend(endRooms, room);
-                    endRoomsCount++;
+                    if (CheckOneConnection(room))
+                    {
+                        ArrayAppend(endRooms, room);
+                        endRoomsCount++;
+                    }
+                    // need to improve, what if no rooms are at the border?
                 }
-                // need to improve, what if no rooms are at the border?
             }
-
             // Select one of the elements of endRooms as the final exitRoom
             Room exitRoom = endRooms[r.Next(endRoomsCount)];
-            //exitRoom.SetExitRoom(); // need to fix this cuz sometimes it separates map into two blocks
 
             // All background setup should be complete by now
-            
-            //PrintMap(lab);
-            //Console.ReadKey(true);
-            //SetCursorPosition(0, 70);
-            //exitRoom.PrintCoord();
 
             // Gameplay
             Room currRoom = origin;
