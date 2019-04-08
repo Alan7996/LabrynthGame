@@ -28,6 +28,8 @@ namespace labrynthGame
         // Position for door; if -1, no door
         private int upDoor = -1, downDoor = -1, leftDoor = -1, rightDoor = -1;
 
+        private Item[] itemDrops;
+
         private bool isSet = false;
 
         public Room(int x, int y, Room[,] lab)
@@ -158,6 +160,10 @@ namespace labrynthGame
             if (this.hasDown == true) downDoor = r.Next(1, this.width * mapScale);
             if (this.hasLeft == true) leftDoor = r.Next(1, this.height * mapScale);
             if (this.hasRight == true) rightDoor = r.Next(1, this.height * mapScale);
+        }
+        public void SetItemDrops(Item[] items)
+        {
+            this.itemDrops = items;
         }
         public void SetSet(bool inp)
         {
@@ -616,6 +622,18 @@ namespace labrynthGame
 
             return new Tuple<int, int>(playerDmg, enemyDmg);
         }
+        // Item methods
+        static void CreateItems(Room room)
+        {
+            Item[] items = new Item[r.Next(4)];
+
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = new Item();
+            }
+
+            room.SetItemDrops(items);
+        }
         // Print methods
         static void PrintMap(Room[,] map)
         {
@@ -725,6 +743,8 @@ namespace labrynthGame
         }
         static Tuple<int, int> PrintRoom(Room room, int posX, int posY)
         {
+            // NEED TO PRINT ITEMS **********************************************************
+
             // Draws a given room with player at (posX, posY)
             Console.Clear();
             // Coordinate calculations
@@ -850,8 +870,12 @@ namespace labrynthGame
             int endRoomsCount = 0;
             foreach (Room room in allRooms)
             {
-                // Create door locations
-                if (room != null) room.SetDoorPos();
+                // Create door locations and create items for each room
+                if (room != null)
+                {
+                    room.SetDoorPos();
+                    CreateItems(room);
+                }
                 // Add rooms at the border of the map AND with only one door
                 if (room != null && (room.GetX() == 0 || room.GetX() ==
                   X_SIZE - 1 || room.GetY() == 0 || room.GetY() == Y_SIZE - 1))
