@@ -178,6 +178,18 @@ namespace labrynthGame
             return this.isSet;
         }
 
+        public void RemoveItem(Item item)
+        {
+            for (int i = 0; i < this.itemDrops.Length; i++)
+            {
+                if (this.itemDrops[i] == item)
+                {
+                    this.itemDrops[i] = null;
+                    break;
+                }
+            }
+        }
+
         // Other class methods
         public void PrintCoord()
         {
@@ -300,18 +312,6 @@ namespace labrynthGame
         {
             return this.inventory;
         }
-        public bool AddItem(Item item)
-        {
-            for (int i = 0; i < this.inventory.Length; i++)
-            {
-                if (inventory[i] != null)
-                {
-                    inventory[i] = item;
-                    return true;
-                }
-            }
-            return false;
-        }
 
         public int Attack()
         {
@@ -333,10 +333,24 @@ namespace labrynthGame
 
             return res;
         }
+        public bool AddItem(Item item)
+        {
+            for (int i = 0; i < inventory.Length; i++)
+            {
+                if (inventory[i] == null)
+                {
+                    inventory[i] = item;
+                    return true;
+                }
+            }
+            return false;
+        }
         public void UseItem(int index)
         {
+            SetCursorPosition(0, 6);
             WriteLine($"Healed {inventory[index].GetHeal()} HP!");
             this.IncHealth(inventory[index].GetHeal());
+            inventory[index] = null;
             for (int i = index + 1; i < inventory.Length; i++)
             {
                 if (inventory[i] != null) inventory[i - 1] = inventory[i];
@@ -622,15 +636,17 @@ namespace labrynthGame
                     enemyDmg = enemy.Attack();
                     break;
                 case 2:
+                    WriteLine("0. Cancel");
                     PrintItems(player);
 
                     int.TryParse(ReadLine(), out input);
+                    if (input == 0) break;
                     while (input > 10 || input < 1)
                     {
                         WriteLine("Invalid choice");
                         int.TryParse(ReadLine(), out input);
                     }
-                    player.UseItem(input);
+                    player.UseItem(input - 1);
 
                     enemyDmg = enemy.Attack();
                     break;
@@ -802,12 +818,16 @@ namespace labrynthGame
             SetCursorPosition(printPosX, printPosY + mapY - 1);
             Write("└" + horizDown + "┘");
 
+            // Print items in the room
             foreach(Item item in room.GetItemDrops())
             {
-                if (!item.GetIsXYSet())
-                    item.SetXY(r.Next(printPosX + 4, printPosX2 - 4), r.Next(printPosY + 3, printPosY2 - 3));
-                SetCursorPosition(item.GetX(), item.GetY());
-                Write("!");
+                if (item != null)
+                {
+                    if (!item.GetIsXYSet())
+                        item.SetXY(r.Next(printPosX + 4, printPosX2 - 4), r.Next(printPosY + 3, printPosY2 - 3));
+                    SetCursorPosition(item.GetX(), item.GetY());
+                    Write("!");
+                }
             }
             
             return new Tuple<int, int>(printPosX + charX, printPosY + charY);
@@ -951,6 +971,14 @@ namespace labrynthGame
                         pos = new Tuple<int, int>(pos.Item1, pos.Item2 - 1);
                         player.PrintChar(pos.Item1, pos.Item2);
 
+                        foreach (Item item in currRoom.GetItemDrops())
+                        {
+                            if (item != null && pos.Item1 == item.GetX() && pos.Item2 == item.GetY())
+                            {
+                                if (player.AddItem(item)) currRoom.RemoveItem(item);
+                            }
+                        }
+
                         // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
                         {
@@ -996,6 +1024,14 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1, pos.Item2 + 1);
                         player.PrintChar(pos.Item1, pos.Item2);
+
+                        foreach (Item item in currRoom.GetItemDrops())
+                        {
+                            if (item != null && pos.Item1 == item.GetX() && pos.Item2 == item.GetY())
+                            {
+                                if (player.AddItem(item)) currRoom.RemoveItem(item);
+                            }
+                        }
 
                         // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
@@ -1043,6 +1079,14 @@ namespace labrynthGame
                         pos = new Tuple<int, int>(pos.Item1 - 1, pos.Item2);
                         player.PrintChar(pos.Item1, pos.Item2);
 
+                        foreach (Item item in currRoom.GetItemDrops())
+                        {
+                            if (item != null && pos.Item1 == item.GetX() && pos.Item2 == item.GetY())
+                            {
+                                if (player.AddItem(item)) currRoom.RemoveItem(item);
+                            }
+                        }
+
                         // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
                         {
@@ -1087,6 +1131,14 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1 + 1, pos.Item2);
                         player.PrintChar(pos.Item1, pos.Item2);
+
+                        foreach (Item item in currRoom.GetItemDrops())
+                        {
+                            if (item != null && pos.Item1 == item.GetX() && pos.Item2 == item.GetY())
+                            {
+                                if (player.AddItem(item)) currRoom.RemoveItem(item);
+                            }
+                        }
 
                         // Game over if player enters blue box exit
                         if (currRoom == exitRoom)
