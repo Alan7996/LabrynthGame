@@ -161,6 +161,10 @@ namespace labrynthGame
             if (this.hasLeft == true) leftDoor = r.Next(1, this.height * mapScale);
             if (this.hasRight == true) rightDoor = r.Next(1, this.height * mapScale);
         }
+        public Item[] GetItemDrops()
+        {
+            return this.itemDrops;
+        }
         public void SetItemDrops(Item[] items)
         {
             this.itemDrops = items;
@@ -418,6 +422,9 @@ namespace labrynthGame
         private string name;
         private int heal;
 
+        bool isXYSet = false;
+        private int x, y;
+
         public Item()
         {
             this.heal = r.Next(0, 11) * 10;
@@ -431,6 +438,24 @@ namespace labrynthGame
         public int GetHeal()
         {
             return this.heal;
+        }
+        public bool GetIsXYSet()
+        {
+            return this.isXYSet;
+        }
+        public int GetX()
+        {
+            return this.x;
+        }
+        public int GetY()
+        {
+            return this.y;
+        }
+        public void SetXY(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+            this.isXYSet = true;
         }
     }
     class Program
@@ -743,8 +768,6 @@ namespace labrynthGame
         }
         static Tuple<int, int> PrintRoom(Room room, int posX, int posY)
         {
-            // NEED TO PRINT ITEMS **********************************************************
-
             // Draws a given room with player at (posX, posY)
             Console.Clear();
             // Coordinate calculations
@@ -778,6 +801,14 @@ namespace labrynthGame
             }
             SetCursorPosition(printPosX, printPosY + mapY - 1);
             Write("└" + horizDown + "┘");
+
+            foreach(Item item in room.GetItemDrops())
+            {
+                if (!item.GetIsXYSet())
+                    item.SetXY(r.Next(printPosX + 4, printPosX2 - 4), r.Next(printPosY + 3, printPosY2 - 3));
+                SetCursorPosition(item.GetX(), item.GetY());
+                Write("!");
+            }
             
             return new Tuple<int, int>(printPosX + charX, printPosY + charY);
         }
