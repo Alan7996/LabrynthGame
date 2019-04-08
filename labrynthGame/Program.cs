@@ -613,10 +613,10 @@ namespace labrynthGame
             if (currRoom == exitRoom)
             {
                 string[] EXIT = new string[4];
-                EXIT[0] = "┼───────┼ ";
+                EXIT[0] = "┌───────┐ ";
                 EXIT[1] = "│       │ ";
                 EXIT[2] = "│       │ ";
-                EXIT[3] = "┼───────┼ ";
+                EXIT[3] = "└───────┘ ";
                 int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
                 int j = printPosY + currRoom.GetHeight() * mapScale / 2;
                 Console.ForegroundColor = ConsoleColor.Blue;
@@ -731,6 +731,17 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1, pos.Item2 - 1);
                         player.PrintChar(pos.Item1, pos.Item2);
+                        if (currRoom == exitRoom)
+                        {
+                            int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
+                            int j = printPosY + currRoom.GetHeight() * mapScale / 2 + 3;
+                            if (pos.Item2 == j && pos.Item1 >= i + 1 && pos.Item1 <= i + 8)
+                            {
+                                SetCursorPosition(0, 0);
+                                WriteLine("Game Cleared");
+                                return;
+                            }
+                        }
                     }
                     else
                     {
@@ -753,6 +764,17 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1, pos.Item2 + 1);
                         player.PrintChar(pos.Item1, pos.Item2);
+                        if (currRoom == exitRoom)
+                        {
+                            int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
+                            int j = printPosY + currRoom.GetHeight() * mapScale / 2;
+                            if (pos.Item2 == j && pos.Item1 >= i + 1 && pos.Item1 <= i + 8)
+                            {
+                                SetCursorPosition(0, 0);
+                                WriteLine("Game Cleared");
+                                return;
+                            }
+                        }
                     }
                     else
                     {
@@ -775,6 +797,17 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1 - 1, pos.Item2);
                         player.PrintChar(pos.Item1, pos.Item2);
+                        if (currRoom == exitRoom)
+                        {
+                            int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3 + 8;
+                            int j = printPosY + currRoom.GetHeight() * mapScale / 2;
+                            if (pos.Item1 == i && pos.Item2 >= j && pos.Item2 <= j + 3)
+                            {
+                                SetCursorPosition(0, 0);
+                                WriteLine("Game Cleared");
+                                return;
+                            }
+                        }
                     }
                     else
                     {
@@ -796,6 +829,17 @@ namespace labrynthGame
                         Write(" ");
                         pos = new Tuple<int, int>(pos.Item1 + 1, pos.Item2);
                         player.PrintChar(pos.Item1, pos.Item2);
+                        if (currRoom == exitRoom)
+                        {
+                            int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
+                            int j = printPosY + currRoom.GetHeight() * mapScale / 2;
+                            if (pos.Item1 == i && pos.Item2 >= j && pos.Item2 <= j + 3)
+                            {
+                                SetCursorPosition(0, 0);
+                                WriteLine("Game Cleared");
+                                return;
+                            }
+                        }
                     }
                     else
                     {
