@@ -526,6 +526,31 @@ namespace labrynthGame
                 WriteLine();
             }
         }
+        static void HighlightCurrRoom(Room room)
+        {
+            string[] EXIST_ROOM = new string[4];
+            int i = room.GetX(), j = room.GetY();
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            SetCursorPosition(12 * i, 8 * j);
+            EXIST_ROOM[0] = (room.GetHasUp() ? "┼        ┼" : "┼────────┼");
+            Write(EXIST_ROOM[0]);
+            SetCursorPosition(12 * i, 8 * j + 1);
+            EXIST_ROOM[1] = (room.GetHasLeft() ? "  " : "│ ") + "      " + (room.GetHasRight() ? "  " : " │");
+            Write(EXIST_ROOM[1]);
+            SetCursorPosition(12 * i, 8 * j + 2);
+            EXIST_ROOM[2] = (room.GetHasLeft() ? "  " : "│ ") + "  @@@ " + (room.GetHasRight() ? "  " : " │");
+            Write(EXIST_ROOM[2]);
+            SetCursorPosition(12 * i, 8 * j + 3);
+            Write(EXIST_ROOM[2]);
+            SetCursorPosition(12 * i, 8 * j + 4);
+            Write(EXIST_ROOM[1]);
+            SetCursorPosition(12 * i, 8 * j + 5);
+            EXIST_ROOM[3] = (room.GetHasDown() ? "┼        ┼" : "┼────────┼");
+            Write(EXIST_ROOM[3]);
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
         static void PrintArray(Room[] array)
         {
             for (int i = 0; i < array.Length; i++)
@@ -737,6 +762,7 @@ namespace labrynthGame
                     if (!mOpen) {
                         // Display the map after clearing the screen
                         PrintMap(lab);
+                        HighlightCurrRoom(currRoom);
                         //WriteLine();
                         //exitRoom.PrintCoord();
                         mOpen = true;
