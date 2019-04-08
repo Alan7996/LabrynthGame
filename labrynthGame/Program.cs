@@ -12,8 +12,8 @@ namespace labrynthGame
     {
         public static int X_SIZE = 9, Y_SIZE = 9;
         public static int X_ORIGIN = X_SIZE / 2, Y_ORIGIN = Y_SIZE / 2;
-        public static int printPosX = 35, printPosY = 5, printPosX2 = 0, printPosY2 = 0;
-        public static int mapScale = 4;
+        public static int printPosX = 20, printPosY = 10, printPosX2 = 0, printPosY2 = 0;
+        public static int mapScale = 5;
         public static Random r = new Random();
     }
     class Room
@@ -422,7 +422,6 @@ namespace labrynthGame
                         room.SetDirRoom("r", lab[room.GetX() + 1, room.GetY()]);
                     }
                 }
-                room.SetDoorPos();
                 room.SetSet(true);
             }
         }
@@ -456,6 +455,17 @@ namespace labrynthGame
             }
             return res;
         }
+        static Room FirstRoom(Room[,] map)
+        {
+            for (int i = 0; i <= map.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j <= map.GetUpperBound(1); j++)
+                {
+                    if (map[i, j] != null) return map[i, j];
+                }
+            }
+            return null;
+        }
         // Print methods
         static void PrintMap(Room[,] map)
         {
@@ -468,20 +478,20 @@ namespace labrynthGame
                     if (map[i, j] != null)
                     {
                         SetCursorPosition(12 * i, 8 * j);
-                        EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "┼        ┼" : "┼────────┼");
+                        EXIST_ROOM[0] = (map[i, j].GetHasUp() ? "┼        ┼" : "┼────────┼ ");
                         Write(EXIST_ROOM[0]);
                         SetCursorPosition(12 * i, 8 * j + 1);
-                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? "  " : "│ ") + "      " + (map[i, j].GetHasRight() ? "  " : " │");
+                        EXIST_ROOM[1] = (map[i, j].GetHasLeft() ? "  " : "│ ") + "      " + (map[i, j].GetHasRight() ? "  " : " │ ");
                         Write(EXIST_ROOM[1]);
                         SetCursorPosition(12 * i, 8 * j + 2);
-                        EXIST_ROOM[2] = (map[i, j].GetHasLeft() ? "  " : "│ ") + "  @@@ " + (map[i, j].GetHasRight() ? "  " : " │");
+                        EXIST_ROOM[2] = (map[i, j].GetHasLeft() ? "  " : "│ ") + "  @@@ " + (map[i, j].GetHasRight() ? "  " : " │ ");
                         Write(EXIST_ROOM[2]);
                         SetCursorPosition(12 * i, 8 * j + 3);
                         Write(EXIST_ROOM[2]);
                         SetCursorPosition(12 * i, 8 * j + 4);
                         Write(EXIST_ROOM[1]);
                         SetCursorPosition(12 * i, 8 * j + 5);
-                        EXIST_ROOM[3] = (map[i, j].GetHasDown() ? "┼        ┼" : "┼────────┼");
+                        EXIST_ROOM[3] = (map[i, j].GetHasDown() ? "┼        ┼" : "┼────────┼ ");
                         Write(EXIST_ROOM[3]);
 
                         // Print inbetween rooms (room connectedness)
@@ -533,20 +543,20 @@ namespace labrynthGame
             Console.ForegroundColor = ConsoleColor.Red;
 
             SetCursorPosition(12 * i, 8 * j);
-            EXIST_ROOM[0] = (room.GetHasUp() ? "┼        ┼" : "┼────────┼");
+            EXIST_ROOM[0] = (room.GetHasUp() ? "┼        ┼ " : "┼────────┼ ");
             Write(EXIST_ROOM[0]);
             SetCursorPosition(12 * i, 8 * j + 1);
-            EXIST_ROOM[1] = (room.GetHasLeft() ? "  " : "│ ") + "      " + (room.GetHasRight() ? "  " : " │");
+            EXIST_ROOM[1] = (room.GetHasLeft() ? "  " : "│ ") + "      " + (room.GetHasRight() ? "  " : " │ ");
             Write(EXIST_ROOM[1]);
             SetCursorPosition(12 * i, 8 * j + 2);
-            EXIST_ROOM[2] = (room.GetHasLeft() ? "  " : "│ ") + "  @@@ " + (room.GetHasRight() ? "  " : " │");
+            EXIST_ROOM[2] = (room.GetHasLeft() ? "  " : "│ ") + "  @@@ " + (room.GetHasRight() ? "  " : " │ ");
             Write(EXIST_ROOM[2]);
             SetCursorPosition(12 * i, 8 * j + 3);
             Write(EXIST_ROOM[2]);
             SetCursorPosition(12 * i, 8 * j + 4);
             Write(EXIST_ROOM[1]);
             SetCursorPosition(12 * i, 8 * j + 5);
-            EXIST_ROOM[3] = (room.GetHasDown() ? "┼        ┼" : "┼────────┼");
+            EXIST_ROOM[3] = (room.GetHasDown() ? "┼        ┼ " : "┼────────┼ ");
             Write(EXIST_ROOM[3]);
 
             Console.ForegroundColor = ConsoleColor.White;
@@ -598,9 +608,40 @@ namespace labrynthGame
             //WriteLine($"Char : {printPosX + charX}, {printPosY + charY}");
             return new Tuple<int, int>(printPosX + charX, printPosY + charY);
         }
+        static void PrintExitRoom (Room currRoom, Room exitRoom)
+        {
+            if (currRoom == exitRoom)
+            {
+                string[] EXIT = new string[4];
+                EXIT[0] = "┼───────┼ ";
+                EXIT[1] = "│       │ ";
+                EXIT[2] = "│       │ ";
+                EXIT[3] = "┼───────┼ ";
+                int i = printPosX + currRoom.GetWidth() * mapScale * 2 / 3;
+                int j = printPosY + currRoom.GetHeight() * mapScale / 2;
+                Console.ForegroundColor = ConsoleColor.Blue;
+
+                SetCursorPosition(i, j);
+                Write(EXIT[0]);
+                SetCursorPosition(i, j + 1);
+                Write(EXIT[1]);
+                SetCursorPosition(i, j + 2);
+                Write(EXIT[2]);
+                SetCursorPosition(i, j + 3);
+                Write(EXIT[3]);
+
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
         // Main
         static void Main(string[] args)
         {
+            // Recommended Screen Size Minimum :
+            /*
+             * Buffer width : 110, height : 72
+             * Window width : 110, height : 65
+             */
+
             Room[] allRooms = new Room[X_SIZE * Y_SIZE];
             Room[] endRooms = new Room[2 * (X_SIZE + Y_SIZE) - 4];
             Room[,] lab = new Room[X_SIZE, Y_SIZE];
@@ -644,6 +685,9 @@ namespace labrynthGame
             int endRoomsCount = 0;
             foreach (Room room in allRooms)
             {
+                // Create door locations
+                if (room != null) room.SetDoorPos();
+                // Add rooms at the border of the map AND with only one door
                 if (room != null && (room.GetX() == 0 || room.GetX() ==
                   X_SIZE - 1 || room.GetY() == 0 || room.GetY() == Y_SIZE - 1))
                 {
@@ -652,13 +696,17 @@ namespace labrynthGame
                         ArrayAppend(endRooms, room);
                         endRoomsCount++;
                     }
-                    // need to improve, what if no rooms are at the border?
                 }
             }
             // Select one of the elements of endRooms as the final exitRoom
-            Room exitRoom = endRooms[r.Next(endRoomsCount)];
+            Room exitRoom;
+            // If there is no room at border, select the first map in the map
+            if (endRoomsCount == 0) exitRoom = FirstRoom(lab);
+            else exitRoom = endRooms[r.Next(endRoomsCount)];
+
 
             // All background setup should be complete by now
+
 
             // Gameplay
             Room currRoom = origin;
@@ -668,12 +716,14 @@ namespace labrynthGame
             bool mOpen = false;
             Tuple<int, int> pos = PrintRoom(currRoom, player.GetX(), player.GetY());
             player.PrintChar(pos.Item1, pos.Item2);
+            SetCursorPosition(0, 0);
+            WriteLine($"{exitRoom.GetX()}, {exitRoom.GetY()}");
             while (true)
             {
                 ConsoleKey inp = Console.ReadKey(true).Key;
                 // If an arrow is pressed, go to that direction
                 // need to make room transition when entering through a door
-                if (inp == ConsoleKey.UpArrow)
+                if (inp == ConsoleKey.UpArrow && mOpen == false)
                 {
                     if (pos.Item2 != printPosY + 1)
                     {
@@ -690,11 +740,12 @@ namespace labrynthGame
                             currRoom = currRoom.GetUp();
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + currRoom.GetDownDoor() + 1, printPosY2 - 2);
+                            PrintExitRoom(currRoom, exitRoom);
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
                 }
-                if (inp == ConsoleKey.DownArrow)
+                if (inp == ConsoleKey.DownArrow && mOpen == false)
                 {
                     if (pos.Item2 != printPosY2 - 2)
                     {
@@ -711,11 +762,12 @@ namespace labrynthGame
                             currRoom = currRoom.GetDown();
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + currRoom.GetUpDoor() + 1, printPosY + 1);
+                            PrintExitRoom(currRoom, exitRoom);
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
                 }
-                if (inp == ConsoleKey.LeftArrow)
+                if (inp == ConsoleKey.LeftArrow && mOpen == false)
                 {
                     if (pos.Item1 != printPosX + 2)
                     {
@@ -731,11 +783,12 @@ namespace labrynthGame
                             currRoom = currRoom.GetLeft();
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX2, printPosY + currRoom.GetRightDoor());
+                            PrintExitRoom(currRoom, exitRoom);
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
                 }
-                if (inp == ConsoleKey.RightArrow)
+                if (inp == ConsoleKey.RightArrow && mOpen == false)
                 {
                     if (pos.Item1 != printPosX2)
                     {
@@ -751,6 +804,7 @@ namespace labrynthGame
                             currRoom = currRoom.GetRight();
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + 2, printPosY + currRoom.GetLeftDoor());
+                            PrintExitRoom(currRoom, exitRoom);
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
                     }
@@ -759,13 +813,14 @@ namespace labrynthGame
                 if (inp == ConsoleKey.M)
                 {
                     SetCursorPosition(0, 0);
-                    if (!mOpen) {
+                    if (!mOpen)
+                    {
+                        mOpen = true;
                         // Display the map after clearing the screen
                         PrintMap(lab);
                         HighlightCurrRoom(currRoom);
                         //WriteLine();
                         //exitRoom.PrintCoord();
-                        mOpen = true;
                     }
                     else
                     {
@@ -773,6 +828,7 @@ namespace labrynthGame
                         // previously saved gameState
                         mOpen = false;
                         PrintRoom(currRoom, pos.Item1, pos.Item2);
+                        PrintExitRoom(currRoom, exitRoom);
                         player.PrintChar(pos.Item1, pos.Item2);
                     }
                 }
