@@ -572,18 +572,7 @@ namespace labrynthGame
                 }
             }
         }
-        static int ArrayValidLength(Room[] array)
-        {
-            // Returns the valid length of an array
-            // array should to be sorted with all null indices after valid ones
-            int res = 0;
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i] != null) res++;
-            }
-            return res;
-        }
-        static int ArrayValidLength(Item[] array)
+        static int ArrayValidLength<T>(T[] array)
         {
             // Returns the valid length of an array
             // array should to be sorted with all null indices after valid ones
@@ -698,7 +687,7 @@ namespace labrynthGame
                     int.TryParse(ReadLine(), out input);
 
                     if (input == 0) return BattleSim(player, enemy, ref didStart);
-                    while (input > ArrayValidLength(player.GetInven()) || input < 1)
+                    while (input > ArrayValidLength<Item>(player.GetInven()) || input < 1)
                     {
                         PrintDialogueBox();
                         SetCursorPosition(32, 25);
@@ -1084,7 +1073,7 @@ namespace labrynthGame
             bool allRoomSet = false;
             while (!allRoomSet)
             {
-                int len = ArrayValidLength(allRooms);
+                int len = ArrayValidLength<Room>(allRooms);
                 for (int i = 0; i < len; i++)
                 {
                     MakeRoomSet(allRooms[i], allRooms, lab);
@@ -1374,7 +1363,7 @@ namespace labrynthGame
 
                         while (input != 0)
                         {
-                            if (input < 1 || input > ArrayValidLength(player.GetInven()))
+                            if (input < 1 || input > ArrayValidLength<Item>(player.GetInven()))
                             {
                                 PrintDialogueBox();
                                 SetCursorPosition(32, 25);
