@@ -1116,7 +1116,7 @@ namespace labrynthGame
             Player player = new Player(origin.GetWidth() / 2, origin.GetHeight() / 2);
             Console.CursorVisible = false;
 
-            bool mOpen = false;
+            bool iOpen = false, mOpen = false;
             Tuple<int, int> pos = PrintRoom(currRoom, player.GetX(), player.GetY());
             player.PrintChar(pos.Item1, pos.Item2);
             //SetCursorPosition(0, 0);
@@ -1339,8 +1339,62 @@ namespace labrynthGame
                         }
                     }
                 }
+                // If user presses 'i', show or hide the inventory
+                if (inp == ConsoleKey.I && !mOpen)
+                {
+                    if (!iOpen)
+                    {
+                        iOpen = true;
+                        Console.Clear();
+                        PrintItems(player);
+                        PrintDialogueBox();
+                        PrintUserInputBox();
+
+                        int input;
+                        int.TryParse(ReadLine(), out input);
+
+                        while (input != 0)
+                        {
+                            if (input < 1 || input > ArrayValidLength(player.GetInven()))
+                            {
+                                PrintDialogueBox();
+                                SetCursorPosition(32, 25);
+                                Write("Invalid choice");
+                                PrintUserInputBox();
+                            }
+                            else
+                            {
+                                player.UseItem(input - 1);
+
+                                // Clear Potion options
+                                for (int i = 0; i < 33; i++)
+                                {
+                                    SetCursorPosition(32, 38 + i);
+                                    Write("                                 ");
+                                }
+
+                                PrintItems(player);
+                                
+                                SetCursorPosition(32, 36);
+                                Write("Press any key");
+                                Console.ReadKey(true);
+
+                                PrintDialogueBox();
+                                PrintUserInputBox();
+                            }
+
+                            int.TryParse(ReadLine(), out input);
+                        }
+
+                        // Close inventory and reopen game screen
+                        iOpen = false;
+                        PrintRoom(currRoom, pos.Item1, pos.Item2);
+                        PrintExitRoom(currRoom, exitRoom);
+                        player.PrintChar(pos.Item1, pos.Item2);
+                    }
+                }
                 // If user presses 'm', show or hide the map
-                if (inp == ConsoleKey.M)
+                if (inp == ConsoleKey.M && !iOpen)
                 {
                     SetCursorPosition(0, 0);
                     if (!mOpen)
@@ -1361,8 +1415,6 @@ namespace labrynthGame
                     }
                 }
             }
-            // TO IMPLEMENT :
-            // i TO USE INVENTORY (CAN HEAL FROM THERE)
         }
     }
 }
