@@ -610,7 +610,7 @@ namespace labrynthGame
         static Enemy RandonEncounter()
         {
             // Randomly determine if the character encounters an enemy
-            bool didEncounter = r.Next(20) < 1 ? true : false;
+            bool didEncounter = r.Next(25) < 1 ? true : false;
             if (didEncounter)
             {
                 return new Enemy();
