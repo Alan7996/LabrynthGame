@@ -25,8 +25,8 @@ namespace labrynthGame
         
         private bool hasUp, hasDown, hasLeft, hasRight;
         private Room up, down, left, right;
-        // Position for door; if -1, no door
-        private int upDoor = -1, downDoor = -1, leftDoor = -1, rightDoor = -1;
+        // Position for door; if -3, no door
+        private int upDoor = -3, downDoor = -3, leftDoor = -3, rightDoor = -3;
 
         private Item[] itemDrops;
 
@@ -265,7 +265,7 @@ namespace labrynthGame
         private int x, y;
         private int health;
         private string[] sprite = new string[1];
-        private Item[] inventory = new Item[10];
+        private Item[] inventory = new Item[9];
 
         public Player(int x, int y)
         {
@@ -653,7 +653,7 @@ namespace labrynthGame
             }
 
             // Clear Potion options
-            for (int i = 0; i < 33; i++)
+            for (int i = 0; i < 3 * (ArrayValidLength<Item>(player.GetInven()) + 2); i++)
             {
                 SetCursorPosition(32, 38 + i);
                 Write("                                 ");
@@ -661,54 +661,39 @@ namespace labrynthGame
             SetCursorPosition(0, 0);
 
             PrintUserInputBox();
-            int input;
-            int.TryParse(ReadLine(), out input);
-
-            while (input > 3 || input < 1)
-            {
-                PrintDialogueBox();
-                SetCursorPosition(32, 25);
-                Write("Invalid choice");
-                PrintUserInputBox();
-                int.TryParse(ReadLine(), out input);
-            }
 
             Tuple<int, bool> playerAttack = player.Attack();
             Tuple<int, bool> enemyAttack = enemy.Attack();
 
-            switch (input)
+            switch (ReadKey().Key)
             {
-                case 1:
+                case ConsoleKey.D1:
                     PrintDmg(playerAttack, enemyAttack);
                     break;
-                case 2:
+                case ConsoleKey.D2:
                     PrintItems(player);
 
                     PrintUserInputBox();
-                    int.TryParse(ReadLine(), out input);
+                    ConsoleKeyInfo rawInput= ReadKey();
+                    ConsoleKey input = rawInput.Key;
 
-                    if (input == 0) return BattleSim(player, enemy, ref didStart);
-                    while (input > ArrayValidLength<Item>(player.GetInven()) || input < 1)
+                    if (input == ConsoleKey.D0) return BattleSim(player, enemy, ref didStart);
+                    if (input == ConsoleKey.D1 || input == ConsoleKey.D2 || input == ConsoleKey.D3 ||
+                        input == ConsoleKey.D4 || input == ConsoleKey.D5 || input == ConsoleKey.D6 ||
+                        input == ConsoleKey.D7 || input == ConsoleKey.D8 || input == ConsoleKey.D9)
                     {
-                        PrintDialogueBox();
-                        SetCursorPosition(32, 25);
-                        WriteLine("Invalid choice");
-                        PrintUserInputBox();
-                        int.TryParse(ReadLine(), out input);
+                        PrintDmg(new Tuple<int, bool>(-2, false), enemyAttack);
+                        player.UseItem(int.Parse(rawInput.KeyChar.ToString()) - 1);
+                        return new Tuple<int, int>(0, enemyAttack.Item1);
                     }
-                    
-                    PrintDmg(new Tuple<int, bool>(-2, false), enemyAttack);
-                    player.UseItem(input - 1);
-
-                    return new Tuple<int, int>(0, enemyAttack.Item1);
-                case 3:
+                    return new Tuple<int, int>(0, 0);
+                case ConsoleKey.D3:
                     if (player.TryRun()) return new Tuple<int, int>(-1, -1);
                     
                     PrintDmg(new Tuple<int, bool>(-1, false), enemyAttack);
                     break;
                 default:
-                    WriteLine("This should never be printed");
-                    break;
+                    return new Tuple<int, int>(0, 0);
             }
 
             player.PrintHealth();
@@ -1348,8 +1333,8 @@ namespace labrynthGame
                         }
                     }
                 }
-                // If user presses 'i', show or hide the inventory
-                if (inp == ConsoleKey.I && !mOpen)
+                // If user presses 'e', show or hide the inventory
+                if (inp == ConsoleKey.E && !mOpen)
                 {
                     if (!iOpen)
                     {
@@ -1358,42 +1343,43 @@ namespace labrynthGame
                         PrintItems(player);
                         PrintDialogueBox();
                         PrintUserInputBox();
+                        
+                        ConsoleKeyInfo rawInput = ReadKey();
+                        ConsoleKey input = rawInput.Key;
 
-                        int input;
-                        int.TryParse(ReadLine(), out input);
-
-                        while (input != 0)
+                        while (input != ConsoleKey.D0)
                         {
-                            if (input < 1 || input > ArrayValidLength<Item>(player.GetInven()))
+                            if (input == ConsoleKey.D1 || input == ConsoleKey.D2 || input == ConsoleKey.D3 ||
+                                input == ConsoleKey.D4 || input == ConsoleKey.D5 || input == ConsoleKey.D6 ||
+                                input == ConsoleKey.D7 || input == ConsoleKey.D8 || input == ConsoleKey.D9)
                             {
-                                PrintDialogueBox();
-                                SetCursorPosition(32, 25);
-                                Write("Invalid choice");
-                                PrintUserInputBox();
-                            }
-                            else
-                            {
-                                player.UseItem(input - 1);
-
-                                // Clear Potion options
-                                for (int i = 0; i < 33; i++)
+                                int index = int.Parse(rawInput.KeyChar.ToString()) - 1;
+                                if (index < ArrayValidLength<Item>(player.GetInven()))
                                 {
-                                    SetCursorPosition(32, 38 + i);
-                                    Write("                                 ");
+                                    player.UseItem(index);
+
+                                    // Clear Potion options
+                                    for (int i = 0; i < 3 * (ArrayValidLength<Item>(player.GetInven()) + 2); i++)
+                                    {
+                                        SetCursorPosition(32, 38 + i);
+                                        Write("                                 ");
+                                    }
+                                    SetCursorPosition(0, 0);
+
+                                    PrintItems(player);
+
+                                    SetCursorPosition(32, 36);
+                                    Write("Press any key");
+                                    Console.ReadKey(true);
+
+                                    PrintDialogueBox();
+                                    PrintUserInputBox();
                                 }
-                                SetCursorPosition(0, 0);
-
-                                PrintItems(player);
-                                
-                                SetCursorPosition(32, 36);
-                                Write("Press any key");
-                                Console.ReadKey(true);
-
-                                PrintDialogueBox();
-                                PrintUserInputBox();
                             }
 
-                            int.TryParse(ReadLine(), out input);
+                            PrintUserInputBox();
+                            rawInput = ReadKey();
+                            input = rawInput.Key;
                         }
 
                         // Close inventory and reopen game screen
@@ -1403,8 +1389,8 @@ namespace labrynthGame
                         player.PrintChar(pos.Item1, pos.Item2);
                     }
                 }
-                // If user presses 'm', show or hide the map
-                if (inp == ConsoleKey.M && !iOpen)
+                // If user presses 'tab', show or hide the map
+                if (inp == ConsoleKey.Tab && !iOpen)
                 {
                     SetCursorPosition(0, 0);
                     if (!mOpen)
@@ -1426,8 +1412,6 @@ namespace labrynthGame
                 }
             }
             // TO DO:
-            // map printing bug when no door
-            // change key binds so that playable with one hand
             // sprint functionality
         }
     }
