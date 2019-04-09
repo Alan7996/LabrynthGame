@@ -345,15 +345,22 @@ namespace labrynthGame
         public void UseItem(int index)
         {
             SetCursorPosition(32, 25);
-            WriteLine($"Healed {inventory[index].GetHeal()} HP!");
-            this.IncHealth(inventory[index].GetHeal());
-            inventory[index] = null;
-            for (int i = index + 1; i < inventory.Length; i++)
+            if (this.health == 100)
             {
-                if (inventory[i] != null)
+                WriteLine("Already full HP!");
+            }
+            else
+            {
+                WriteLine($"Healed {inventory[index].GetHeal()} HP!");
+                this.IncHealth(inventory[index].GetHeal());
+                inventory[index] = null;
+                for (int i = index + 1; i < inventory.Length; i++)
                 {
-                    inventory[i - 1] = inventory[i];
-                    inventory[i] = null;
+                    if (inventory[i] != null)
+                    {
+                        inventory[i - 1] = inventory[i];
+                        inventory[i] = null;
+                    }
                 }
             }
         }
