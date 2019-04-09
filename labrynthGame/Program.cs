@@ -739,6 +739,15 @@ namespace labrynthGame
             room.SetItemDrops(items);
         }
         // Print methods
+        static void PrintTutorial()
+        {
+            SetCursorPosition(printPosX, 2);
+            Write("Press WASD to move");
+            SetCursorPosition(printPosX, 3);
+            Write("Press I to use inventory");
+            SetCursorPosition(printPosX, 4);
+            Write("Press M to use map");
+        }
         static void PrintMap(Room[,] map)
         {
             Console.Clear();
@@ -1126,13 +1135,14 @@ namespace labrynthGame
             bool iOpen = false, mOpen = false;
             Tuple<int, int> pos = PrintRoom(currRoom, player.GetX(), player.GetY());
             player.PrintChar(pos.Item1, pos.Item2);
+            PrintTutorial();
             //SetCursorPosition(0, 0);
             //exitRoom.PrintCoord();
             while (!gameOver)
             {
                 ConsoleKey inp = Console.ReadKey(true).Key;
                 // If an arrow is pressed, go to that direction by one tile
-                if (inp == ConsoleKey.UpArrow && mOpen == false)
+                if (inp == ConsoleKey.W && mOpen == false)
                 {
                     if (pos.Item2 != printPosY + 1)
                     {
@@ -1186,7 +1196,7 @@ namespace labrynthGame
                         }
                     }
                 }
-                if (inp == ConsoleKey.DownArrow && mOpen == false)
+                if (inp == ConsoleKey.S && mOpen == false)
                 {
                     if (pos.Item2 != printPosY2 - 2)
                     {
@@ -1240,7 +1250,7 @@ namespace labrynthGame
                         }
                     }
                 }
-                if (inp == ConsoleKey.LeftArrow && mOpen == false)
+                if (inp == ConsoleKey.A && mOpen == false)
                 {
                     if (pos.Item1 != printPosX + 2)
                     {
@@ -1293,7 +1303,7 @@ namespace labrynthGame
                         }
                     }
                 }
-                if (inp == ConsoleKey.RightArrow && mOpen == false)
+                if (inp == ConsoleKey.D && mOpen == false)
                 {
                     if (pos.Item1 != printPosX2)
                     {
