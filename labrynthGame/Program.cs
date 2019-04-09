@@ -741,6 +741,8 @@ namespace labrynthGame
         // Print methods
         static void PrintTutorial()
         {
+            SetCursorPosition(printPosX, 0);
+            Write("Objective : Escape the maze!");
             SetCursorPosition(printPosX, 2);
             Write("Press WASD to move");
             SetCursorPosition(printPosX, 3);
