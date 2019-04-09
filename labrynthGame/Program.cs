@@ -350,7 +350,11 @@ namespace labrynthGame
             inventory[index] = null;
             for (int i = index + 1; i < inventory.Length; i++)
             {
-                if (inventory[i] != null) inventory[i - 1] = inventory[i];
+                if (inventory[i] != null)
+                {
+                    inventory[i - 1] = inventory[i];
+                    inventory[i] = null;
+                }
             }
         }
         public bool TryRun()
@@ -572,6 +576,17 @@ namespace labrynthGame
             }
             return res;
         }
+        static int ArrayValidLength(Item[] array)
+        {
+            // Returns the valid length of an array
+            // array should to be sorted with all null indices after valid ones
+            int res = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] != null) res++;
+            }
+            return res;
+        }
         static Room FirstRoom(Room[,] map)
         {
             // Return the first valid room in the map
@@ -613,6 +628,9 @@ namespace labrynthGame
                     PrintDialogueBox();
                     SetCursorPosition(32, 25);
                     Write("You successfully ran away!");
+                    SetCursorPosition(32, 36);
+                    Write("Press any key");
+                    Console.ReadKey(true);
                     return true;
                 }
                 player.DecHealth(res.Item2);
@@ -639,10 +657,10 @@ namespace labrynthGame
             }
 
             // Clear Potion options
-            for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 33; i++)
             {
                 SetCursorPosition(32, 38 + i);
-                Write("            ");
+                Write("                                 ");
             }
 
             PrintUserInputBox();
@@ -667,15 +685,13 @@ namespace labrynthGame
                     PrintDmg(playerAttack, enemyAttack);
                     break;
                 case 2:
-                    SetCursorPosition(32, 38);
-                    WriteLine("0. Cancel");
                     PrintItems(player);
 
                     PrintUserInputBox();
                     int.TryParse(ReadLine(), out input);
 
                     if (input == 0) return BattleSim(player, enemy, ref didStart);
-                    while (input > 10 || input < 1)
+                    while (input > ArrayValidLength(player.GetInven()) || input < 1)
                     {
                         PrintDialogueBox();
                         SetCursorPosition(32, 25);
@@ -901,14 +917,34 @@ namespace labrynthGame
         static void PrintItems(Player player)
         {
             Item[] inven = player.GetInven();
+            string[] ITEMBOX = new string[3];
+            ITEMBOX[0] = "┌────────────────────────────┐ ";
+            ITEMBOX[1] = "│                            │ ";
+            ITEMBOX[2] = "└────────────────────────────┘ ";
+
+            SetCursorPosition(32, 38);
+            WriteLine(ITEMBOX[0]);
+            SetCursorPosition(32, 39);
+            WriteLine(ITEMBOX[1]);
+            SetCursorPosition(34, 39);
+            WriteLine("0. Cancel");
+            SetCursorPosition(32, 40);
+            WriteLine(ITEMBOX[2]);
 
             // Print inventory
             for (int i = 0; i < inven.Length; i++)
             {
-                SetCursorPosition(32, 39 + i);
-                Write("            ");
-                SetCursorPosition(32, 39 + i);
-                if (inven[i] != null) WriteLine($"{i + 1}. {inven[i].GetName()}");
+                if (inven[i] != null)
+                {
+                    SetCursorPosition(32, 41 + 3 * i);
+                    Write(ITEMBOX[0]);
+                    SetCursorPosition(32, 41 + 3 * i + 1);
+                    Write(ITEMBOX[1]);
+                    SetCursorPosition(34, 41 + 3 * i + 1);
+                    WriteLine($"{i + 1}. {inven[i].GetName()}");
+                    SetCursorPosition(32, 41 + 3 * i + 2);
+                    Write(ITEMBOX[2]);
+                }
             }
         }
         // Print for Battle
