@@ -344,7 +344,7 @@ namespace labrynthGame
         }
         public void UseItem(int index)
         {
-            SetCursorPosition(0, 6);
+            SetCursorPosition(32, 25);
             WriteLine($"Healed {inventory[index].GetHeal()} HP!");
             this.IncHealth(inventory[index].GetHeal());
             inventory[index] = null;
@@ -607,8 +607,6 @@ namespace labrynthGame
             while (player.GetHealth() != 0 && enemy.GetHealth() != 0)
             {
                 // Repeat combat until the death of either player or enemy
-                PrintUserInputBox();
-
                 Tuple<int, int> res = BattleSim(player, enemy, ref didStart);
                 if (res.Item1 == -1 && res.Item2 == -1)
                 {
@@ -640,6 +638,14 @@ namespace labrynthGame
                 didStart = true;
             }
 
+            // Clear Potion options
+            for (int i = 0; i < 11; i++)
+            {
+                SetCursorPosition(32, 38 + i);
+                Write("            ");
+            }
+
+            PrintUserInputBox();
             int input;
             int.TryParse(ReadLine(), out input);
 
@@ -661,11 +667,14 @@ namespace labrynthGame
                     PrintDmg(playerAttack, enemyAttack);
                     break;
                 case 2:
+                    SetCursorPosition(32, 38);
                     WriteLine("0. Cancel");
                     PrintItems(player);
 
+                    PrintUserInputBox();
                     int.TryParse(ReadLine(), out input);
-                    if (input == 0) break;
+
+                    if (input == 0) return BattleSim(player, enemy, ref didStart);
                     while (input > 10 || input < 1)
                     {
                         PrintDialogueBox();
@@ -674,10 +683,11 @@ namespace labrynthGame
                         PrintUserInputBox();
                         int.TryParse(ReadLine(), out input);
                     }
-                    player.UseItem(input - 1);
                     
-                    PrintDmg(new Tuple<int, bool>(0, false), enemyAttack);
-                    break;
+                    PrintDmg(new Tuple<int, bool>(-2, false), enemyAttack);
+                    player.UseItem(input - 1);
+
+                    return new Tuple<int, int>(0, enemyAttack.Item1);
                 case 3:
                     if (player.TryRun()) return new Tuple<int, int>(-1, -1);
                     
@@ -895,6 +905,9 @@ namespace labrynthGame
             // Print inventory
             for (int i = 0; i < inven.Length; i++)
             {
+                SetCursorPosition(32, 39 + i);
+                Write("            ");
+                SetCursorPosition(32, 39 + i);
                 if (inven[i] != null) WriteLine($"{i + 1}. {inven[i].GetName()}");
             }
         }
@@ -950,7 +963,7 @@ namespace labrynthGame
             SetCursorPosition(32, 25);
             if (playerDmg.Item1 == 0) Write("You missed your attack!");
             else if (playerDmg.Item1 == -1) Write("You failed to run away!");
-            else
+            else if (playerDmg.Item1 != -2)
             {
                 Write($"You inflicted {playerDmg.Item1} damage to the enemy!");
                 if (playerDmg.Item2) Write(" Critical hit!");
