@@ -455,7 +455,7 @@ namespace labrynthGame
 
         public Item()
         {
-            this.heal = r.Next(0, 11) * 10;
+            this.heal = r.Next(1, 11) * 10;
             this.name = "Potion" + this.heal.ToString();
         }
 
