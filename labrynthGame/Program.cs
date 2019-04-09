@@ -658,6 +658,7 @@ namespace labrynthGame
                 SetCursorPosition(32, 38 + i);
                 Write("                                 ");
             }
+            SetCursorPosition(0, 0);
 
             PrintUserInputBox();
             int input;
@@ -1380,6 +1381,7 @@ namespace labrynthGame
                                     SetCursorPosition(32, 38 + i);
                                     Write("                                 ");
                                 }
+                                SetCursorPosition(0, 0);
 
                                 PrintItems(player);
                                 
@@ -1423,6 +1425,10 @@ namespace labrynthGame
                     }
                 }
             }
+            // TO DO:
+            // map printing bug when no door
+            // change key binds so that playable with one hand
+            // sprint functionality
         }
     }
 }
