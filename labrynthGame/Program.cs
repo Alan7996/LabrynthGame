@@ -1363,7 +1363,6 @@ namespace labrynthGame
             }
             // TO IMPLEMENT :
             // i TO USE INVENTORY (CAN HEAL FROM THERE)
-            // item usage in battle
         }
     }
 }
