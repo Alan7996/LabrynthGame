@@ -1351,7 +1351,7 @@ namespace labrynthGame
                         {
                             currRoom = currRoom.GetLeft();
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
-                            pos = new Tuple<int, int>(printPosX2, printPosY + currRoom.GetRightDoor());
+                            pos = new Tuple<int, int>(printPosX2 - 1, printPosY + currRoom.GetRightDoor());
                             PrintExitRoom(currRoom, exitRoom);
                             //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
@@ -1360,7 +1360,7 @@ namespace labrynthGame
                 }
                 if (inp == ConsoleKey.D && mOpen == false)
                 {
-                    if (pos.Item1 != printPosX2)
+                    if (pos.Item1 != printPosX2 - 1)
                     {
                         SetCursorPosition(pos.Item1, pos.Item2);
                         Write(" ");
