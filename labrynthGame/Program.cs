@@ -712,7 +712,7 @@ namespace labrynthGame
                     ConsoleKeyInfo rawInput= ReadKey();
                     ConsoleKey input = rawInput.Key;
 
-                    if (input == ConsoleKey.D0) return BattleSim(player, enemy, ref didStart);
+                    if (input == ConsoleKey.Z) return BattleSim(player, enemy, ref didStart);
                     if (input == ConsoleKey.D1 || input == ConsoleKey.D2 || input == ConsoleKey.D3 ||
                         input == ConsoleKey.D4 || input == ConsoleKey.D5 || input == ConsoleKey.D6 ||
                         input == ConsoleKey.D7 || input == ConsoleKey.D8 || input == ConsoleKey.D9)
@@ -955,7 +955,7 @@ namespace labrynthGame
             SetCursorPosition(32, 39);
             WriteLine(ITEMBOX[1]);
             SetCursorPosition(34, 39);
-            WriteLine("0. Cancel");
+            WriteLine("Z. Cancel");
             SetCursorPosition(32, 40);
             WriteLine(ITEMBOX[2]);
 
@@ -1164,7 +1164,7 @@ namespace labrynthGame
                         if (player.GetToggle() && player.GetSprintBar() != 0)
                         {
                             player.DecSprintBar();
-                            pos = new Tuple<int, int>(pos.Item1, printPosY + 2);
+                            pos = new Tuple<int, int>(pos.Item1, printPosY + 1);
                         }
                         else
                         {
@@ -1367,7 +1367,7 @@ namespace labrynthGame
                         if (player.GetToggle() && player.GetSprintBar() != 0)
                         {
                             player.DecSprintBar();
-                            pos = new Tuple<int, int>(printPosX2 - 2, pos.Item2);
+                            pos = new Tuple<int, int>(printPosX2 - 1, pos.Item2);
                         }
                         else
                         {
@@ -1452,7 +1452,7 @@ namespace labrynthGame
                         ConsoleKeyInfo rawInput = ReadKey();
                         ConsoleKey input = rawInput.Key;
 
-                        while (input != ConsoleKey.D0)
+                        while (input != ConsoleKey.Z)
                         {
                             if (input == ConsoleKey.D1 || input == ConsoleKey.D2 || input == ConsoleKey.D3 ||
                                 input == ConsoleKey.D4 || input == ConsoleKey.D5 || input == ConsoleKey.D6 ||
