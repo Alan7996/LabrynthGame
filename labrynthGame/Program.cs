@@ -407,7 +407,7 @@ namespace labrynthGame
         public void PrintHealth()
         {
             SetCursorPosition(printPosX, printPosY - 3);
-            Write("                          ");
+            Write("                                    ");
             SetCursorPosition(printPosX, printPosY - 3);
             if (this.health == 0)
             {
