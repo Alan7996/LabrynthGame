@@ -756,9 +756,11 @@ namespace labrynthGame
             SetCursorPosition(printPosX, 2);
             Write("Press WASD to move");
             SetCursorPosition(printPosX, 3);
-            Write("Press I to use inventory");
+            Write("Press Q to sprint");
             SetCursorPosition(printPosX, 4);
-            Write("Press M to use map");
+            Write("Press E to use inventory");
+            SetCursorPosition(printPosX, 5);
+            Write("Press TAB to use map");
         }
         static void PrintMap(Room[,] map)
         {
