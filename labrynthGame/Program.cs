@@ -1411,8 +1411,6 @@ namespace labrynthGame
                     }
                 }
             }
-            // TO DO:
-            // sprint functionality
         }
     }
 }
