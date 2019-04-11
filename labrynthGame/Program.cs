@@ -266,6 +266,8 @@ namespace labrynthGame
         private int health;
         private string[] sprite = new string[1];
         private Item[] inventory = new Item[9];
+        private int sprintBar;
+        private bool toggleSprint;
 
         public Player(int x, int y)
         {
@@ -273,6 +275,8 @@ namespace labrynthGame
             this.y = y;
 
             this.health = 100;
+            this.sprintBar = 3;
+            this.toggleSprint = false;
 
             sprite[0] = "@";
         }
@@ -311,6 +315,26 @@ namespace labrynthGame
         public Item[] GetInven()
         {
             return this.inventory;
+        }
+        public int GetSprintBar()
+        {
+            return this.sprintBar;
+        }
+        public void DecSprintBar()
+        {
+            if (this.sprintBar != 0) this.sprintBar--;
+        }
+        public void IncSprintBar()
+        {
+            if (this.sprintBar < 3) this.sprintBar++;
+        }
+        public bool GetToggle()
+        {
+            return this.toggleSprint;
+        }
+        public void SwitchToggle()
+        {
+            this.toggleSprint = !this.toggleSprint;
         }
 
         public Tuple<int, bool> Attack()
@@ -374,13 +398,16 @@ namespace labrynthGame
         public void PrintChar(int x, int y)
         {
             SetCursorPosition(x, y);
+            if (this.toggleSprint) Console.ForegroundColor = ConsoleColor.Red;
             Write(sprite[0]);
+            Console.ForegroundColor = ConsoleColor.White;
             this.PrintHealth();
+            this.PrintSprintBar();
         }
         public void PrintHealth()
         {
             SetCursorPosition(printPosX, printPosY - 3);
-            Write("                          ");
+            Write("                                    ");
             SetCursorPosition(printPosX, printPosY - 3);
             if (this.health == 0)
             {
@@ -396,6 +423,14 @@ namespace labrynthGame
                 for (int i = 0; i < this.health / 10; i++) Write("口");
                 if (this.health / 10 == 0 && this.health != 0) Write("|");
             }
+        }
+        public void PrintSprintBar()
+        {
+            SetCursorPosition(printPosX, printPosY - 2);
+            Write("               ");
+            SetCursorPosition(printPosX, printPosY - 2);
+            Write("Sprint : ");
+            for (int i = 0; i < this.sprintBar; i++) Write("口");
         }
     }
     class Enemy
@@ -677,7 +712,7 @@ namespace labrynthGame
                     ConsoleKeyInfo rawInput= ReadKey();
                     ConsoleKey input = rawInput.Key;
 
-                    if (input == ConsoleKey.D0) return BattleSim(player, enemy, ref didStart);
+                    if (input == ConsoleKey.Z) return BattleSim(player, enemy, ref didStart);
                     if (input == ConsoleKey.D1 || input == ConsoleKey.D2 || input == ConsoleKey.D3 ||
                         input == ConsoleKey.D4 || input == ConsoleKey.D5 || input == ConsoleKey.D6 ||
                         input == ConsoleKey.D7 || input == ConsoleKey.D8 || input == ConsoleKey.D9)
@@ -721,9 +756,11 @@ namespace labrynthGame
             SetCursorPosition(printPosX, 2);
             Write("Press WASD to move");
             SetCursorPosition(printPosX, 3);
-            Write("Press I to use inventory");
+            Write("Press Q to sprint");
             SetCursorPosition(printPosX, 4);
-            Write("Press M to use map");
+            Write("Press E to use inventory");
+            SetCursorPosition(printPosX, 5);
+            Write("Press TAB to use map");
         }
         static void PrintMap(Room[,] map)
         {
@@ -920,7 +957,7 @@ namespace labrynthGame
             SetCursorPosition(32, 39);
             WriteLine(ITEMBOX[1]);
             SetCursorPosition(34, 39);
-            WriteLine("0. Cancel");
+            WriteLine("Z. Cancel");
             SetCursorPosition(32, 40);
             WriteLine(ITEMBOX[2]);
 
@@ -1110,6 +1147,7 @@ namespace labrynthGame
             Console.CursorVisible = false;
 
             bool iOpen = false, mOpen = false;
+            int stepCounter = 0;
             Tuple<int, int> pos = PrintRoom(currRoom, player.GetX(), player.GetY());
             player.PrintChar(pos.Item1, pos.Item2);
             PrintTutorial();
@@ -1125,7 +1163,21 @@ namespace labrynthGame
                     {
                         SetCursorPosition(pos.Item1, pos.Item2);
                         Write(" ");
-                        pos = new Tuple<int, int>(pos.Item1, pos.Item2 - 1);
+                        if (player.GetToggle() && player.GetSprintBar() != 0)
+                        {
+                            player.DecSprintBar();
+                            pos = new Tuple<int, int>(pos.Item1, printPosY + 1);
+                        }
+                        else
+                        {
+                            pos = new Tuple<int, int>(pos.Item1, pos.Item2 - 1);
+                            stepCounter++;
+                            if (stepCounter == 10)
+                            {
+                                player.IncSprintBar();
+                                stepCounter = 0;
+                            }
+                        }
                         player.PrintChar(pos.Item1, pos.Item2);
 
                         foreach (Item item in currRoom.GetItemDrops())
@@ -1179,7 +1231,21 @@ namespace labrynthGame
                     {
                         SetCursorPosition(pos.Item1, pos.Item2);
                         Write(" ");
-                        pos = new Tuple<int, int>(pos.Item1, pos.Item2 + 1);
+                        if (player.GetToggle() && player.GetSprintBar() != 0)
+                        {
+                            player.DecSprintBar();
+                            pos = new Tuple<int, int>(pos.Item1, printPosY2 - 2);
+                        }
+                        else
+                        {
+                            pos = new Tuple<int, int>(pos.Item1, pos.Item2 + 1);
+                            stepCounter++;
+                            if (stepCounter == 10)
+                            {
+                                player.IncSprintBar();
+                                stepCounter = 0;
+                            }
+                        }
                         player.PrintChar(pos.Item1, pos.Item2);
 
                         foreach (Item item in currRoom.GetItemDrops())
@@ -1233,7 +1299,21 @@ namespace labrynthGame
                     {
                         SetCursorPosition(pos.Item1, pos.Item2);
                         Write(" ");
-                        pos = new Tuple<int, int>(pos.Item1 - 1, pos.Item2);
+                        if (player.GetToggle() && player.GetSprintBar() != 0)
+                        {
+                            player.DecSprintBar();
+                            pos = new Tuple<int, int>(printPosX + 2, pos.Item2);
+                        }
+                        else
+                        {
+                            pos = new Tuple<int, int>(pos.Item1 - 1, pos.Item2);
+                            stepCounter++;
+                            if (stepCounter == 10)
+                            {
+                                player.IncSprintBar();
+                                stepCounter = 0;
+                            }
+                        }
                         player.PrintChar(pos.Item1, pos.Item2);
 
                         foreach (Item item in currRoom.GetItemDrops())
@@ -1273,7 +1353,7 @@ namespace labrynthGame
                         {
                             currRoom = currRoom.GetLeft();
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
-                            pos = new Tuple<int, int>(printPosX2, printPosY + currRoom.GetRightDoor());
+                            pos = new Tuple<int, int>(printPosX2 - 1, printPosY + currRoom.GetRightDoor());
                             PrintExitRoom(currRoom, exitRoom);
                             //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
@@ -1282,11 +1362,25 @@ namespace labrynthGame
                 }
                 if (inp == ConsoleKey.D && mOpen == false)
                 {
-                    if (pos.Item1 != printPosX2)
+                    if (pos.Item1 != printPosX2 - 1)
                     {
                         SetCursorPosition(pos.Item1, pos.Item2);
                         Write(" ");
-                        pos = new Tuple<int, int>(pos.Item1 + 1, pos.Item2);
+                        if (player.GetToggle() && player.GetSprintBar() != 0)
+                        {
+                            player.DecSprintBar();
+                            pos = new Tuple<int, int>(printPosX2 - 1, pos.Item2);
+                        }
+                        else
+                        {
+                            pos = new Tuple<int, int>(pos.Item1 + 1, pos.Item2);
+                            stepCounter++;
+                            if (stepCounter == 10)
+                            {
+                                player.IncSprintBar();
+                                stepCounter = 0;
+                            }
+                        }
                         player.PrintChar(pos.Item1, pos.Item2);
 
                         foreach (Item item in currRoom.GetItemDrops())
@@ -1328,9 +1422,22 @@ namespace labrynthGame
                             PrintRoom(currRoom, pos.Item1, pos.Item2);
                             pos = new Tuple<int, int>(printPosX + 2, printPosY + currRoom.GetLeftDoor());
                             PrintExitRoom(currRoom, exitRoom);
-                            //player.SetHealth(10); // Replenish health
                             player.PrintChar(pos.Item1, pos.Item2);
                         }
+                    }
+                }
+                // If user presses 'q', toggle sprint
+                if (inp == ConsoleKey.Q && !mOpen && !iOpen)
+                {
+                    if (player.GetToggle())
+                    {
+                        player.SwitchToggle();
+                        player.PrintChar(pos.Item1, pos.Item2);
+                    }
+                    else
+                    {
+                        player.SwitchToggle();
+                        player.PrintChar(pos.Item1, pos.Item2);
                     }
                 }
                 // If user presses 'e', show or hide the inventory
@@ -1347,7 +1454,7 @@ namespace labrynthGame
                         ConsoleKeyInfo rawInput = ReadKey();
                         ConsoleKey input = rawInput.Key;
 
-                        while (input != ConsoleKey.D0)
+                        while (input != ConsoleKey.Z)
                         {
                             if (input == ConsoleKey.D1 || input == ConsoleKey.D2 || input == ConsoleKey.D3 ||
                                 input == ConsoleKey.D4 || input == ConsoleKey.D5 || input == ConsoleKey.D6 ||
